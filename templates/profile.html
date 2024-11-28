@@ -25,7 +25,7 @@
                     <div class="breadcrumb-text">
                         <h2>Profile</h2>
                         <div class="bt-option">
-                            <a href="{{ url_for('dashboard') }}">dashboard</a>
+                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
                             <span>Profile</span>
                         </div>
                     </div>
@@ -37,6 +37,18 @@
 
     <div class="container mt-5">
         <h2>Profile Page</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-success">
+                    {% for category, message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <form action="/profile" method="POST">
             <!-- Personal Details Section -->
             <div class="card mb-4">
@@ -46,51 +58,40 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" name="name" class="form-control" required>
+                        <input type="text" id="name" name="name" class="form-control" value="{{ name }}" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" required>
+                        <input type="email" id="email" name="email" class="form-control" value="{{email }}" required>
                     </div>
                     <div class="form-group">
                         <label for="birthdate">Birthdate</label>
-                        <input type="date" id="birthdate" name="birthdate" class="form-control" required>
+                        <input type="date" id="birthdate" name="birthdate" class="form-control" value="{{ birthdate }}" required>
                     </div>
                 </div>
             </div>
 
             <!-- Fitness Goals Section -->
             <div class="card mb-4">
-                <div class="card-header">
-                    Fitness Goals
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Fitness Goals</span>
+                    <a href="{{ url_for('editforfitnessgoals') }}" class="btn btn-primary" style="background-color: orange; color: white;">Edit</a>
                 </div>
                 <div class="card-body">
-                    <div class="form-group">
-                        <label for="fitness_goals">Goals</label>
-                        <textarea id="fitness_goals" name="fitness_goals" class="form-control" rows="3"></textarea>
-                        <small class="form-text text-muted">Separate goals with commas.</small>
-                    </div>
+                    <p>{{ fitness_goals }}</p>
                 </div>
             </div>
 
             <!-- Health Metrics Section -->
             <div class="card mb-4">
-                <div class="card-header">
-                    Health Metrics
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Health Metrics</span>
+                    <a href="{{ url_for('editforhealthmetric') }}" class="btn btn-primary" style="background-color: orange; color: white;">Edit</a>
                 </div>
                 <div class="card-body">
-                    <div class="form-group">
-                        <label for="weight">Weight (kg)</label>
-                        <input type="number" id="weight" name="weight" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="bmi">BMI</label>
-                        <input type="number" step="0.1" id="bmi" name="bmi" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="heart_rate">Heart Rate (bpm)</label>
-                        <input type="number" id="heart_rate" name="heart_rate" class="form-control" required>
-                    </div>
+                    <p>Weight: {{ weight }} kg</p>
+                    <p>BMI: {{bmi }}</p>
+                    <p>Heart Rate: {{ heart_rate }} bpm</p>
                 </div>
             </div>
 

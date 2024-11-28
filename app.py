@@ -104,9 +104,10 @@ from flask import Flask, render_template, request, redirect, url_for, session,fl
 
 # if __name__ == '__main__':
 #     app.run(debug=True)
+
 import logging
 from urllib.parse import urlparse
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session,flash, get_flashed_messages
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Set this to a unique and secret value
@@ -233,6 +234,31 @@ def class_details():
 @app.route('/blog-details')
 def blog_details():
     return render_template('blog-details.html')
+
+
+@app.route('/editforfitnessgoals', methods=['GET', 'POST'])
+def editforfitnessgoals():
+    if 'user' not in session:
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        
+        flash('Fitness goals updated successfully!', 'success')
+        return redirect(url_for('profile'))
+    
+    return render_template('editforfitnessgoals.html')
+
+
+@app.route('/editforhealthmetric', methods=['GET', 'POST'])
+def editforhealthmetric():
+    if 'user' not in session:
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        flash('Health metrics updated successfully!', 'success')
+        return redirect(url_for('profile'))
+    
+    return render_template('editforhealthmetric.html', health_metrics=session.get('user_data', {}))
 
 @app.route('/main')
 def main():
