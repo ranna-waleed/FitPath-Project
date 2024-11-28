@@ -17,24 +17,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Navigation Bar Begin -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Dashboard</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile">Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/support">Support</a>
-                </li>
-            </ul>
+    <!-- Offcanvas Menu Section Begin -->
+    <div class="offcanvas-menu-overlay"></div>
+    <div class="offcanvas-menu-wrapper">
+        <div class="canvas-close">
+            <i class="fa fa-close"></i>
         </div>
-    </nav>
-    <!-- Navigation Bar End -->
+        <nav class="canvas-menu mobile-menu">
+            <ul>
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a href="{{ url_for('support') }}">Support</a></li>
+            </ul>
+        </nav>
+    </div>
+    <!-- Offcanvas Menu Section End -->
+
+    <!-- Header Section Begin -->
+    <header class="header-section">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-3"></div>
+                <div class="col-lg-6">
+                    <nav class="nav-menu">
+                        <ul>
+                            <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                            <li><a href="{{ url_for('support') }}">Support</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="canvas-open">
+                <i class="fa fa-bars"></i>
+            </div>
+        </div>
+    </header>
+    <!-- Header Section End -->
 
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="{{ url_for('static', filename='images/breadcrumb-bg.jpg') }}">
@@ -61,8 +78,8 @@
                 <div class="col-lg-12">
                     <h4>Overview</h4>
                     <p>Fitness Goals: {{ user_data.fitness_goals }}</p>
-                    <p>Workouts: {{ user_data.workouts }}</p>
-                    <p>Nutrition: {{ user_data.nutrition }}</p>
+                    <p>Workouts: 3 workouts per week</p>
+                    <p>Nutrition: 1500 calories per day</p>
                 </div>
             </div>
             <div class="row mt-4">
@@ -99,6 +116,16 @@
     <!-- Js Plugins -->
     <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Initialize the offcanvas menu
+        $(document).ready(function() {
+            $('.canvas-menu').slicknav({
+                prependTo: '#mobile-menu-wrap',
+                allowParentLinks: true
+            });
+        });
+    </script>
 </body>
 </html>
