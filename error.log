@@ -148,3 +148,4 @@
 404 error occurred at URL: http://127.0.0.1:5000/static/images/letest-blog/latest-1.jpg, Sliced Part: latest-1.jpg
 404 error occurred at URL: http://127.0.0.1:5000/team.html, Sliced Part: team.html
 404 error occurred at URL: http://127.0.0.1:5000/contact.html, Sliced Part: contact.html
+404 error occurred at URL: http://127.0.0.1:5000/favicon.ico, Sliced Part: favicon.ico

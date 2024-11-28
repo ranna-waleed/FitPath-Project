@@ -112,6 +112,7 @@ import os
 import time
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Set this to a unique and secret value
 
 logging.basicConfig(level=logging.DEBUG)
 
