@@ -104,12 +104,9 @@ from flask import Flask, render_template, request, redirect, url_for, session,fl
 
 # if __name__ == '__main__':
 #     app.run(debug=True)
-
 import logging
-
 from urllib.parse import urlparse
-import os
-import time
+from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Set this to a unique and secret value
@@ -147,7 +144,21 @@ def home():
 
 @app.route('/support')
 def support():
-     return render_template('support.html')
+    if 'user' not in session:
+        return redirect(url_for('dashboard'))
+    return render_template('support.html')
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user' not in session:
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        # Handle form submission to update user details, goals, or health metrics
+        # For now, just redirect back to the profile page
+        return redirect(url_for('profile'))
+    
+    return render_template('profile.html')
 
 @app.route('/payment', methods=['GET', 'POST'])
 def payment():
@@ -155,7 +166,6 @@ def payment():
         # Handle the payment submission
         return redirect(url_for('confirmation'))
     return render_template('payment.html')
-
 
 @app.route('/about-us')
 def about_us():
@@ -204,7 +214,6 @@ def dashboard():
     }
     return render_template('dashboard.html', user_data=user_data)
 
-
 @app.route('/blog')
 def blog():
     return render_template('blog.html')
@@ -237,7 +246,6 @@ def login():
         session['user'] = email
         return redirect(url_for('dashboard'))
     return render_template('login.html')
-  
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -246,7 +254,6 @@ def register():
         # Redirect to the payment page
         return redirect(url_for('payment'))
     return render_template('register.html')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
