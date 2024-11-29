@@ -14,6 +14,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+
+    <!-- Inline styles for white text -->
+    <style>
+        label {
+            color: white !important;
+        }
+        .form-control {
+            color: white !important; /* For text input */
+            background-color: #333;  /* Optional: change background to dark for better contrast */
+        }
+        select.form-control {
+            color: white !important;
+            background-color: #333;
+        }
+            select.form-control {
+        color: black !important;
+        background-color: #fff !important; /* White background for contrast */
+    }
+    select.form-control option {
+        color: black !important; /* Black text for dropdown options */
+    }
+    </style>
 </head>
 <body>
     <!-- Breadcrumb Section Begin -->
@@ -24,7 +46,7 @@
                     <div class="breadcrumb-text">
                         <h2>Support Center</h2>
                         <div class="bt-option">
-                            <a href="{{ url_for('dashboard') }}">dashboard</a>
+                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
                             <span>Support</span>
                         </div>
                     </div>
@@ -38,22 +60,18 @@
     <section class="blog-section spad">
         <div class="container">
             <div class="row">
-                <div class="col-lg-8 p-0">
+                <!-- Main content section, will stack on smaller screens -->
+                <div class="col-lg-8 col-md-12 p-0">
                     <div class="blog-item">
-                        <div class="bi-text">
-                            <h4 class="mb-4">Submit a Support Request</h4>
-                            <form action="/add_problem" method="POST">
-                                <div class="form-group">
-                                    <label for="description">Problem Description:</label>
-                                    <textarea id="description" name="description" class="form-control" rows="5" required placeholder="Please provide detailed information about your issue"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="contact">Contact Information:</label>
-                                    <input type="email" id="contact" name="contact" class="form-control" placeholder="Your email address" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="category">Issue Category:</label>
-                                    <select id="category" name="category" class="form-control">
+                        <h4 class="mb-4" style="color: white;">Submit a Support Request</h4>
+                        <form action="/add_problem" method="POST">
+                            <div class="form-group">
+                                <label for="description">Problem Description:</label>
+                                <textarea id="description" name="description" class="form-control" rows="5" required placeholder="Please provide detailed information about your issue"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Issue Category:</label>
+                                    <select id="category" name="category" class="form-control" style="color: black; background-color: #fff;">
                                         <option value="">Select Category</option>
                                         <option value="membership">Membership Help</option>
                                         <option value="billing">Billing Questions</option>
@@ -61,15 +79,17 @@
                                         <option value="technical">Technical Support</option>
                                         <option value="other">Other</option>
                                     </select>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-lg">Submit Support Request</button>
-                            </form>
-                        </div>
+                                    
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg">Submit Support Request</button>
+                        </form>
                     </div>
-
+                    
+                    <!-- Support Tickets Table -->
                     <div class="blog-item mt-5">
                         <div class="bi-text">
-                            <h4 class="mb-4">Your Support </h4>
+                           <h4 class="mb-4" style="color: white;">Your Support Requests</h4>
+
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <thead class="thead-dark">
@@ -77,8 +97,6 @@
                                             <th>Ticket ID</th>
                                             <th>Description</th>
                                             <th>Status</th>
-                                            <th>Created-at</th>
-                                            <th>Updated_at</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -107,6 +125,7 @@
                     </div>
                 </div>
 
+                <!-- Sidebar, will stack on smaller screens -->
                 <div class="col-lg-4 col-md-8 p-0">
                     <div class="sidebar-option">
                         <div class="so-categories">
@@ -139,7 +158,7 @@
     </section>
     <!-- Support Section End -->
 
-    <!-- Footer Section (from original template) -->
+    <!-- Footer Section -->
     <section class="footer-section">
         <div class="container">
             <div class="row">
