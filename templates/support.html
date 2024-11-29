@@ -14,6 +14,27 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+    
+    <!-- Custom CSS for white text and removing borders -->
+    <style>
+        .white-text {
+            color: white;
+        }
+        .form-control, .form-group label {
+            border: none;
+            box-shadow: none;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .breadcrumb-section {
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            max-width: 100%;
+        }
+    </style>
 </head>
 <body>
     <!-- Breadcrumb Section Begin -->
@@ -38,21 +59,21 @@
     <section class="blog-section spad">
         <div class="container">
             <div class="row">
-                <div class="col-lg-8 p-0">
+                <div class="col-lg-8 col-md-12">
                     <div class="blog-item">
                         <div class="bi-text">
                             <h4 class="mb-4">Submit a Support Request</h4>
                             <form action="/add_problem" method="POST">
                                 <div class="form-group">
-                                    <label for="description">Problem Description:</label>
+                                    <label for="description" class="white-text">Problem Description:</label>
                                     <textarea id="description" name="description" class="form-control" rows="5" required placeholder="Please provide detailed information about your issue"></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label for="contact">Contact Information:</label>
+                                    <label for="contact" class="white-text">Contact Information:</label>
                                     <input type="email" id="contact" name="contact" class="form-control" placeholder="Your email address" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="category">Issue Category:</label>
+                                    <label for="category" class="white-text">Issue Category:</label>
                                     <select id="category" name="category" class="form-control">
                                         <option value="">Select Category</option>
                                         <option value="membership">Membership Help</option>
@@ -107,7 +128,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-8 p-0">
+                <div class="col-lg-4 col-md-12">
                     <div class="sidebar-option">
                         <div class="so-categories">
                             <h5 class="title">Support Resources</h5>
@@ -138,6 +159,7 @@
         </div>
     </section>
     <!-- Support Section End -->
+
 
     <!-- Footer Section (from original template) -->
     <section class="footer-section">
