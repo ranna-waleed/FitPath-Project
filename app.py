@@ -2,7 +2,7 @@ import logging
 from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, session,flash
 from flask_bcrypt import Bcrypt
-from flask_login import login_required, logout_user, login_user
+from flask_login import login_required, logout_user, login_user,current_user
 import urllib
 from flask_sqlalchemy import SQLAlchemy
 from Backend.Support import *
@@ -267,10 +267,13 @@ def about_us():
 
 @app.route('/support')
 def support():
-    if 'user' not in session:
-        return redirect(url_for('dashboard'))
     problems = getProblems()
     return render_template('support.html', problems=problems)
+
+def getProblems():
+    if not current_user.is_authenticated:
+        return []
+    return Problem.query.filter_by(user_id=current_user.id).all()
 
 @app.route('/add_problem', methods=['POST'])
 @login_required
