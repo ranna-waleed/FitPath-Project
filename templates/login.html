@@ -41,20 +41,59 @@
                 <div class="col-lg-6">
                     <div class="login-form">
                         <h4>Login</h4>
-                        <form action="/login" method="POST">
-                            <div class="form-group">
-                                <label for="email">Email address</label>
-                                <input type="email" id="email" name="email" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" id="password" name="password" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg btn-block" style="background-color: orange; color: white;">Login</button>
-                        </form>
-                        <div class="mt-3 text-center">
-                            <a href="/register" class="text-muted">Don't have an account? Register</a>
+                        <!-- Inserted Block Content Begin -->
+                        {% block content %}
+                        <div class="form">
+                            <h2>Login</h2>
+                            <form method="POST" action="">
+                                {{ form.hidden_tag() }}
+                                <div class="inputBx">
+                                    {{ form.username }}
+                                    <span>username</span>
+                                    {% if form.username.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.username.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="inputBx password">
+                                    {{ form.password }}
+                                    <span>password</span>
+                                    {% if form.password.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.password.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <a href="#" class="password-control" onclick="return show_hide_password(this);"></a>
+                                </div>
+                                <label class="remember">
+                                    {{ form.remember_me() }}
+                                    Remember
+                                </label>
+                                <div class="inputBx">
+                                    {{ form.submit(class="btn btn-primary") }}
+                                </div>
+                            </form>
                         </div>
+                        <script>
+                            function show_hide_password(target) {
+                                var input = document.getElementById('floatingPassword');
+                                if (input.getAttribute('type') == 'password') {
+                                    target.classList.add('view');
+                                    input.setAttribute('type', 'text');
+                                } else {
+                                    target.classList.remove('view');
+                                    input.setAttribute('type', 'password');
+                                }
+                                return false;
+                            }
+                        </script>
+                        {% endblock %}
+                        <!-- Inserted Block Content End -->
                     </div>
                 </div>
             </div>
