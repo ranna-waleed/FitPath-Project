@@ -11,6 +11,7 @@
 - [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
 - [Contributors](#contributors)
+- [Documentation](#documentation)
 
 ## Introduction
 
@@ -88,9 +89,13 @@ FitPath-Project/
 ├── README.md              # Project documentation
 └── ...                    # Additional scripts and resources
 
+## Documentation
+
+- [Frontend Documentation](docs/Frontend_Documentation.md)
+- [Backend Documentation](docs/Backend_Documentation.md)
+
 ## Contributors
 - **Rana Waleed** - Front-End Developer
 - **Roaa Raafat** - Database Management
 - **Mariam Alhaj** - Back-End Developer
-
 
