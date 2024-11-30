@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
     <!-- Offcanvas Menu Section Begin -->
@@ -85,11 +86,13 @@
             <div class="row mt-4">
                 <div class="col-lg-6">
                     <h5>Weight Loss Progress</h5>
-                    <canvas id="weightLossChart"></canvas>
+                    <!-- D3.js chart container -->
+                    <svg id="weightLossChart" width="500" height="300"></svg>
                 </div>
                 <div class="col-lg-6">
                     <h5>Calories Consumed</h5>
-                    <canvas id="caloriesChart"></canvas>
+                    <!-- D3.js chart container -->
+                    <svg id="caloriesChart" width="500" height="300"></svg>
                 </div>
             </div>
             <div class="row mt-4">
@@ -118,14 +121,90 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- D3.js Visualization Script -->
     <script>
-        // Initialize the offcanvas menu
-        $(document).ready(function() {
-            $('.canvas-menu').slicknav({
-                prependTo: '#mobile-menu-wrap',
-                allowParentLinks: true
-            });
-        });
+        // Sample data for weight loss progress
+        const weightLossData = [
+            { week: "WK 1", weight: 200 },
+            { week: "WK 2", weight: 198 },
+            { week: "WK 3", weight: 195 },
+            { week: "WK 4", weight: 193 },
+            { week: "WK 5", weight: 190 }
+        ];
+
+        // Sample data for calories consumed
+        const caloriesData = [
+            { day: 'Monday', calories: 1500 },
+            { day: 'Tuesday', calories: 1600 },
+            { day: 'Wednesday', calories: 1400 },
+            { day: 'Thursday', calories: 1550 },
+            { day: 'Friday', calories: 1700 }
+        ];
+
+        // Weight Loss Progress Chart
+        const svgWeightLoss = d3.select("#weightLossChart"),
+              margin = {top: 20, right: 30, bottom: 40, left: 40},
+              width = +svgWeightLoss.attr("width") - margin.left - margin.right,
+              height = +svgWeightLoss.attr("height") - margin.top - margin.bottom;
+
+        const xWeightLoss = d3.scaleBand()
+                              .domain(weightLossData.map(d => d.week))
+                              .range([margin.left, width - margin.right])
+                              .padding(0.1);
+
+        const yWeightLoss = d3.scaleLinear()
+                              .domain([0, d3.max(weightLossData, d => d.weight)])
+                              .nice()
+                              .range([height, margin.top]);
+
+        svgWeightLoss.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xWeightLoss).tickSizeOuter(0));
+
+        svgWeightLoss.append("g")
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(yWeightLoss));
+
+        svgWeightLoss.selectAll(".bar")
+            .data(weightLossData)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", d => xWeightLoss(d.week))
+            .attr("y", d => yWeightLoss(d.weight))
+            .attr("width", xWeightLoss.bandwidth())
+            .attr("height", d => height - yWeightLoss(d.weight))
+            .attr("fill", "steelblue");
+
+        // Calories Consumed Chart
+        const svgCalories = d3.select("#caloriesChart"),
+              xCalories = d3.scaleBand()
+                            .domain(caloriesData.map(d => d.day))
+                            .range([margin.left, width - margin.right])
+                            .padding(0.1);
+
+        const yCalories = d3.scaleLinear()
+                            .domain([0, d3.max(caloriesData, d => d.calories)])
+                            .nice()
+                            .range([height, margin.top]);
+
+        svgCalories.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xCalories).tickSizeOuter(0));
+
+        svgCalories.append("g")
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(yCalories));
+
+        svgCalories.selectAll(".bar")
+            .data(caloriesData)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", d => xCalories(d.day))
+            .attr("y", d => yCalories(d.calories))
+            .attr("width", xCalories.bandwidth())
+            .attr("height", d => height - yCalories(d.calories))
+            .attr("fill", "orange");
     </script>
 </body>
 </html>
