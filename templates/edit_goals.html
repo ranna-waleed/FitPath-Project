@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Edit Goals</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,600,700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS and Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}" type="text/css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+    <style>
+        .btn-custom {
+            font-size: 18px;
+            padding: 12px 30px;
+            width: 250px;
+            margin: 10px;
+            background-color: orange;
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-section set-bg" data-setbg="{{ url_for('static', filename='images/breadcrumb-bg.jpg') }}">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="breadcrumb-text">
+                        <h2>Edit Goals</h2>
+                        <div class="bt-option">
+                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                            <span>Edit Goals</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Edit Goals Section Begin -->
+    <section class="dashboard-section spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>Edit Your Goals</h4>
+                    <form id="editGoalsForm" method="POST">
+                        <input type="hidden" name="goal_id" value="{{ id }}">
+                        <div class="form-group">
+                            <label for="goal">Goal:</label>
+                            <select id="goal" name="goal" class="form-control">
+                                <option value="lose_weight" {% if goal == 'lose_weight' %}selected{% endif %}>Lose Weight</option>
+                                <option value="maintain" {% if goal == 'maintain' %}selected{% endif %}>Maintain</option>
+                                <option value="tone_up" {% if goal == 'tone_up' %}selected{% endif %}>Tone Up</option>
+                                <option value="build_muscle" {% if goal == 'build_muscle' %}selected{% endif %}>Build Muscle</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="activity_level">Activity Level:</label>
+                            <select id="activity_level" name="activity_level" class="form-control">
+                                <option value="low" {% if activity_level == 'low' %}selected{% endif %}>Low</option>
+                                <option value="medium" {% if activity_level == 'medium' %}selected{% endif %}>Medium</option>
+                                <option value="high" {% if activity_level == 'high' %}selected{% endif %}>High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="exercise_frequency">Exercise Frequency (days per week):</label>
+                            <input type="number" id="exercise_frequency" name="exercise_frequency" class="form-control" min="1" max="7" value="{{ exercise_frequency }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="target_date">Target Date:</label>
+                            <input type="date" id="target_date" name="target_date" class="form-control" value="{{ target_date }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes:</label>
+                            <textarea id="notes" name="notes" class="form-control" rows="4">{{ notes }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-custom save-button">Edit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Edit Goals Section End -->
+     
+    <!-- Footer Section Begin -->
+    <section class="footer-section">
+        <div class="container">
+            <div class="row">
+                <!-- Footer content here -->
+            </div>
+        </div>
+    </section>
+    <!-- Footer Section End -->
+
+    <!-- Js Plugins -->
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
