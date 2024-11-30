@@ -7,7 +7,7 @@
     <meta name="keywords" content="Gym, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Gym | Template</title>
+    <title>FitPath | Home</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
@@ -42,23 +42,10 @@
             <ul>
                 <li><a href="{{ url_for('home') }}">Home</a></li>
                 <li><a href="{{ url_for('about_us') }}">About Us</a></li>
-                <li><a href="{{ url_for('classes') }}">Classes</a></li>
+                <!-- <li><a href="{{ url_for('classes') }}">Classes</a></li> -->
                 <li><a href="{{ url_for('services') }}">Services</a></li>
                 <li><a href="{{ url_for('team') }}">Our Team</a></li>
-                <li><a href="{{ url_for('support') }}">Support</a></li>
-                <li><a href="#">Pages</a>
-                    <ul class="dropdown">
-                        <li><a href="{{ url_for('about_us') }}">About us</a></li>
-                        <li><a href="{{ url_for('class_timetable') }}">Classes timetable</a></li>
-                        <li><a href="{{ url_for('bmi_calculator') }}">Bmi calculate</a></li>
-                        <li><a href="{{ url_for('team') }}">Our team</a></li>
-                        <li><a href="{{ url_for('gallery') }}">Gallery</a></li>
-                        <li><a href="{{ url_for('blog') }}">Our blog</a></li>
-                        
-                        <li><a href="{{ url_for('error_404') }}">404</a></li>
-                    </ul>
-                </li>
-                <li><a href="{{ url_for('contact') }}">Contact</a>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
             </ul>
         </nav>
         <div id="mobile-menu-wrap"></div>
@@ -78,7 +65,7 @@
                 <div class="col-lg-3">
                     <div class="logo">
                         <a href="{{ url_for('home') }}">
-                            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+                            <img src="{{ url_for('static', filename='images/fitpath2.jpeg') }}" alt="" style="width: 150px; height: auto;">
                         </a>
                     </div>
                 </div>
@@ -87,21 +74,9 @@
                         <ul>
                             <li class="active"><a href="{{ url_for('home') }}">Home</a></li>
                             <li><a href="{{ url_for('about_us') }}">About Us</a></li>
-                            <li><a href="{{ url_for('class_details') }}">Classes</a></li>
+                            <!-- <li><a href="{{ url_for('class_details') }}">Classes</a></li> -->
                             <li><a href="{{ url_for('services') }}">Services</a></li>
                             <li><a href="{{ url_for('team') }}">Our Team</a></li>
-                            <li><a href="{{ url_for('support') }}">Support</a></li>
-                            <li><a href="#">Pages</a>
-                                <ul class="dropdown">
-                                    <li><a href="{{ url_for('about_us') }}">About us</a></li>
-                                    <li><a href="{{ url_for('class_timetable') }}">Classes timetable</a></li>
-                                    <li><a href="{{ url_for('bmi_calculator') }}">Bmi calculate</a></li>
-                                    <li><a href="{{ url_for('team') }}">Our team</a></li>
-                                    <li><a href="{{ url_for('gallery') }}">Gallery</a></li>
-                                    <li><a href="{{ url_for('blog') }}">Our blog</a></li>
-                                    <li><a href="{{ url_for('error_404') }}">404</a></li>
-                                </ul>
-                            </li>
                             <li><a href="{{ url_for('contact') }}">Contact</a></li>
                         </ul>
                     </nav>
