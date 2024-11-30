@@ -191,3 +191,9 @@
 
 
 404 error occurred at URL: http://127.0.0.1:5000/favicon.ico, Sliced Part: favicon.ico
+404 error occurred at URL: http://127.0.0.1:5000/path/to/bootstrap.min.css, Sliced Part: bootstrap.min.css
+404 error occurred at URL: http://127.0.0.1:5000/path/to/jquery.min.js, Sliced Part: jquery.min.js
+404 error occurred at URL: http://127.0.0.1:5000/path/to/bootstrap.min.js, Sliced Part: bootstrap.min.js
+404 error occurred at URL: http://127.0.0.1:5000/path/to/chart.js, Sliced Part: chart.js
+404 error occurred at URL: http://127.0.0.1:5000/path/to/main.js, Sliced Part: main.js
+404 error occurred at URL: http://127.0.0.1:5000/goals, Sliced Part: goals

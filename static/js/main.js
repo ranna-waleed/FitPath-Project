@@ -57,8 +57,8 @@
     });
 
     /*------------------
-		Navigation
-	--------------------*/
+        Navigation
+    --------------------*/
     $(".mobile-menu").slicknav({
         prependTo: '#mobile-menu-wrap',
         allowParentLinks: true
@@ -170,5 +170,53 @@
             }
         });
     });
+
+    // Add event listener for the log metrics form
+    document.getElementById('logMetricsForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Get form data
+        const weight = document.getElementById('weight').value;
+        const bmi = document.getElementById('bmi').value;
+        
+        // Save the data (this could be to a server or local storage)
+        // For simplicity, we'll log it to the console
+        console.log('New Metrics:', { weight, bmi });
+        
+        // Update the chart with new data
+        updateChart(weight, bmi);
+    });
+
+    // Function to update the chart with new data
+    function updateChart(weight, bmi) {
+        // Example data - replace with actual data retrieval logic
+        const data = {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Weight (kg)',
+                data: [weight, 78, 77, 76],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }, {
+                label: 'BMI',
+                data: [bmi, 24.5, 24.3, 24.1],
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        };
+        
+        const ctx = document.getElementById('healthMetricsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
 
 })(jQuery);

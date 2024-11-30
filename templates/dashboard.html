@@ -16,6 +16,27 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        /* Custom button styles */
+        .btn-custom {
+            font-size: 18px;
+            padding: 12px 30px;
+            width: 250px; /* Increased button width */
+            margin: 10px;
+            background-color: orange;
+            color: white;
+            text-align: center;
+        }
+
+        /* Decrease size of the graphs */
+        svg {
+            width: 300px; /* Decreased graph width */
+            height: 100px; /* Decreased graph height */
+        }
+    </style>
+</head>
+<body>
 </head>
 <body>
     <!-- Offcanvas Menu Section Begin -->
@@ -97,9 +118,9 @@
             </div>
             <div class="row mt-4">
                 <div class="col-lg-12 text-center">
-                    <a href="/log-meal" class="btn btn-primary" style="background-color: orange; color: white;">Log Meal</a>
-                    <a href="/update-health-metrics" class="btn btn-primary" style="background-color: orange; color: white;">Update Health Metrics</a>
-                    <a href="/goals" class="btn btn-primary" style="background-color: orange; color: white;">Goals</a>
+                    <a href="/log-meal" class="btn btn-custom">View Meals</a>
+                    <a href="/update-health-metrics" class="btn btn-custom">Update Health Metrics</a>
+                    <a href="/goals" class="btn btn-custom">Goals</a>
                 </div>
             </div>
         </div>
