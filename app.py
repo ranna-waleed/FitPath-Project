@@ -3,6 +3,8 @@ from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, session,flash
 from flask_bcrypt import Bcrypt
 from flask_login import login_required, logout_user, login_user
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
 import urllib
 from flask_sqlalchemy import SQLAlchemy
 from Backend.Support import *
@@ -15,8 +17,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'login'
 
 params = urllib.parse.quote_plus("DRIVER={ODBC Driver 17 for SQL Server};"
-    "SERVER=Mariam;"  # or your server name/IP
-    "DATABASE=FitPath_DB;"  # your database name
+    "SERVER=Mariam;"  
+    "DATABASE=FitPath_DB;"  
     "Trusted_Connection=yes;")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mssql+pyodbc:///?odbc_connect={params}"
@@ -61,16 +63,57 @@ def page_not_found(e):
 def inject_name():
     return {'name': getName()}
 
+class DatabaseHelper:
+    def __init__(self, db_session):
+        self.db_session = db_session
+
+    def execute_and_commit(self, sql_command):
+        """Add an object and commit changes."""
+        self.db_session.add(sql_command)
+        self.db_session.commit()
+
+    def delete_and_commit(self, sql_command):
+        """Delete an object and commit changes."""
+        self.db_session.delete(sql_command)
+        self.db_session.commit()
+
+    def query(self, model, **filters):
+        """Query the database."""
+        return self.db_session.query(model).filter_by(**filters).all()
+
+    def execute_raw_sql(self, sql, params=None):
+        """
+        Execute a raw SQL command.
+        
+        :param sql: The raw SQL query as a string.
+        :param params: Optional parameters for the SQL query.
+        :return: Result of the execution.
+        """
+        result = self.db_session.execute(sql, params or {})
+        self.db_session.commit()
+        return result
+
+class Problem(db.Model):
+    __tablename__ = 'problems'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  
+    description = db.Column(db.String(200), nullable=False)
+    status = db.Column(db.String(20), default='Pending')
+    user_id = db.Column(db.String(36), db.ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
+    
+    user = db.relationship('User', back_populates='problems')
+
 class User(db.Model, UserMixin):
     __tablename__ = 'Users'
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))  # Use UUIDs for user IDs
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))  
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=True)
     PasswordHash = db.Column(db.String(80), nullable=False)
     FullName = db.Column(db.String(40), nullable=False)
     State = db.Column(db.Boolean, nullable=False, default=True)
-    phonenumber = db.Column(db.String(15), nullable=True)  # Add phone number column
+    phonenumber = db.Column(db.String(15), nullable=True)  
+    
+    problems = db.relationship('Problem', back_populates='user')
 
 class Roles(db.Model):
     __tablename__ = 'UserRoles'
@@ -112,6 +155,11 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
     submit = SubmitField("Login")
 
+class UserRole(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
+    
 def getCurrentrole():
     user_id = current_user.id
     with engine.connect() as connection:
@@ -122,27 +170,24 @@ def getCurrentrole():
 
         if role_id is None:
             return []  
-        # Fetch the claims for the retrieved RoleId
+
         claims_result = connection.execute(
             text("SELECT ClaimValue FROM RoleClaims WHERE RoleId = :role_id"), {"role_id": role_id}
         )
 
-        # Fetch all claims as a list of strings
         claims = claims_result.fetchall()
         claims_list = [claim[0] for claim in claims]
 
     return claims_list
 
 def authorize(module, action):
-    claims_list = getCurrentrole()  # Get the current role's claims
+    claims_list = getCurrentrole()  
 
-    # Check if the module and action are in the claims_list
     for claim in claims_list:
-        # Check if both module and action are present in the claim
         if f"{module}.{action}" in claim:
-            return True  # Authorization granted
+            return True 
     
-    return False  # Authorization denied
+    return False  
 
 def authenticate_user(form):
     """
@@ -205,6 +250,51 @@ def getName():
         print("User is not authenticated")
         return 'Guest'
 
+def getPending_Problems(status='Pending'):
+    problems = Problem.query.filter_by(user_id=current_user.id, status=status).all()
+    return [{'description': p.description, 'status': p.status} for p in problems]
+
+def getProblems():
+    problems = Problem.query.filter_by(user_id=current_user.id).all()
+    return [{'description': p.description, 'status': p.status, 'id': p.id} for p in problems]
+
+def add_problem(description):
+    """
+    Adds a new problem to the database.
+    :param description: The problem description.
+    :return: Tuple (success: bool, message: str)
+    """
+    if not description:
+        return False, "Description is required."  
+    
+    try:
+        new_problem = Problem(description=description, status='Pending', user_id=current_user.id)
+        db.session.add(new_problem)
+        db.session.commit()
+        return True, "Problem added successfully!"  
+    except Exception as e:
+        db.session.rollback()  
+        return False, f"Error adding problem: {str(e)}"  
+
+def update_problem_status(problem_id, new_status):
+    """
+    Updates the status of an existing problem in the database.
+    :param problem_id: The ID of the problem to update.
+    :param new_status: The new status to assign to the problem.
+    :return: Tuple (success: bool, message: str)
+    """
+    try:
+        problem = Problem.query.get(problem_id)
+        if problem:
+            problem.status = new_status  
+            db.session.commit()  
+            return True, "Problem status updated successfully!"
+        else:
+            return False, "Problem not found."  
+    except Exception as e:
+        db.session.rollback()  
+        return False, f"Error updating problem status: {str(e)}"  
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -225,7 +315,7 @@ def login():
         if user:
             if bcrypt.check_password_hash(user.PasswordHash, form.password.data):
                 login_user(user)
-                session['user'] = user.username  # Set the user key in the session
+                session['user'] = user.username  
                 return redirect(url_for('dashboard'))
             else:
                 print("Invalid password")
@@ -266,20 +356,20 @@ def about_us():
     return render_template('about-us.html')
 
 @app.route('/support')
+@login_required
 def support():
-    if 'user' not in session:
-        return redirect(url_for('dashboard'))
-    problems = getProblems()
-    return render_template('support.html', problems=problems)
+    problems = getProblems()  
+    return render_template('support.html', problems=problems)  
 
 @app.route('/add_problem', methods=['POST'])
 @login_required
 def addProblem():
-    description = request.form.get('description')
-    success, message = add_problem(description)
-    flash(message, 'success' if success else 'danger')
-    return redirect(url_for('support'))
+    description = request.form.get('description')  
+    success, message = add_problem(description)  
+    flash(message, 'success' if success else 'danger')  
+    return redirect(url_for('support'))  
 
+#NOT TESTED
 @app.route('/admin_viewproblems')
 @login_required
 def view_PendingProblems():

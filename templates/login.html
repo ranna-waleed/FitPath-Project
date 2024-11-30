@@ -8,12 +8,24 @@
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,600,700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS and Custom Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+
+    <!-- Custom CSS -->
+    <style>
+        .btn-orange {
+            background-color: orange;
+            border-color: orange;
+            color: white;
+        }
+        .btn-orange:hover {
+            background-color: darkorange;
+            border-color: darkorange;
+        }
+    </style>
 </head>
 <body>
     <!-- Breadcrumb Section Begin -->
@@ -43,41 +55,41 @@
                         <h4>Login</h4>
                         <!-- Inserted Block Content Begin -->
                         {% block content %}
-                        <div class="form">
-                            <h2>Login</h2>
-                            <form method="POST" action="">
-                                {{ form.hidden_tag() }}
-                                <div class="inputBx">
-                                    {{ form.username }}
-                                    <span>username</span>
-                                    {% if form.username.errors %}
-                                    <div class="text-danger">
-                                        {% for error in form.username.errors %}
-                                            <span>{{ error }}</span>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
+                        <form method="POST" action="">
+                            {{ form.hidden_tag() }}
+                            <div class="form-group">
+                                {{ form.username.label(class="form-label") }}
+                                {{ form.username(class="form-control") }}
+                                {% if form.username.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.username.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
                                 </div>
-                                <div class="inputBx password">
-                                    {{ form.password }}
-                                    <span>password</span>
-                                    {% if form.password.errors %}
-                                    <div class="text-danger">
-                                        {% for error in form.password.errors %}
-                                            <span>{{ error }}</span>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                    <a href="#" class="password-control" onclick="return show_hide_password(this);"></a>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                {{ form.password.label(class="form-label") }}
+                                {{ form.password(class="form-control") }}
+                                {% if form.password.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
                                 </div>
-                                <label class="remember">
-                                    {{ form.remember_me() }}
-                                    Remember
-                                </label>
-                                <div class="inputBx">
-                                    {{ form.submit(class="btn btn-primary") }}
-                                </div>
-                            </form>
+                                {% endif %}
+                                <a href="#" class="password-control" onclick="return show_hide_password(this);"></a>
+                            </div>
+                            <div class="form-check">
+                                {{ form.remember_me(class="form-check-input") }}
+                                {{ form.remember_me.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.submit(class="btn btn-orange btn-block") }}
+                            </div>
+                        </form>
+                        <div class="text-center mt-3">
+                            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
                         </div>
                         <script>
                             function show_hide_password(target) {

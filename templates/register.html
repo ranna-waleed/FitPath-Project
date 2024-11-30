@@ -8,12 +8,24 @@
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,600,700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS and Custom Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+
+    <!-- Custom CSS -->
+    <style>
+        .btn-orange {
+            background-color: orange;
+            border-color: orange;
+            color: white;
+        }
+        .btn-orange:hover {
+            background-color: darkorange;
+            border-color: darkorange;
+        }
+    </style>
 </head>
 <body>
     <!-- Breadcrumb Section Begin -->
@@ -31,7 +43,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </section>
     <!-- Breadcrumb Section End -->
 
@@ -43,29 +54,33 @@
                     <div class="register-form">
                         <h4>Register</h4>
                         <!-- Inserted Block Content Begin -->
+                        {% block content %}
                         <form method="POST" action="">
                             {{ form.hidden_tag() }}
-                            <div>
-                                {{ form.full_name.label }}<br>
-                                {{ form.full_name() }}
+                            <div class="form-group">
+                                {{ form.full_name.label(class="form-label") }}
+                                {{ form.full_name(class="form-control") }}
                             </div>
-                            <div>
-                                {{ form.username.label }}<br>
-                                {{ form.username() }}
+                            <div class="form-group">
+                                {{ form.username.label(class="form-label") }}
+                                {{ form.username(class="form-control") }}
                             </div>
-                            <div>
-                                {{ form.email.label }}<br>
-                                {{ form.email() }}
+                            <div class="form-group">
+                                {{ form.email.label(class="form-label") }}
+                                {{ form.email(class="form-control") }}
                             </div>
-                            <div>
-                                {{ form.password.label }}<br>
-                                {{ form.password() }}
+                            <div class="form-group">
+                                {{ form.password.label(class="form-label") }}
+                                {{ form.password(class="form-control") }}
                             </div>
-                            <div>
-                                {{ form.submit() }}
+                            <div class="form-group">
+                                {{ form.submit(class="btn btn-orange btn-block") }}
                             </div>
                         </form>
-                        <a href="{{ url_for('login') }}">Already have an account? Login</a>
+                        <div class="text-center mt-3">
+                            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+                        </div>
+                        {% endblock %}
                         <!-- Inserted Block Content End -->
                     </div>
                 </div>
