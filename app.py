@@ -345,10 +345,49 @@ def bmi_calculator():
 def gallery():
     return render_template('gallery.html')
 
+@app.route('/view-meals')
+def view_meals():
+    return render_template('view_meals.html')
+
+@app.route('/edit-meals')
+def edit_meals():
+    return render_template('edit_meals.html')
+
+@app.route('/create-meals')
+def create_meals():
+    return render_template('create_meals.html')
+
+
+@app.route('/view-health-metrics')
+def view_health_metrics():
+    return render_template('view_health_metrics.html')
+
+@app.route('/edit-health-metrics')
+def edit_health_metrics():
+    return render_template('edit_health_metrics.html')
+
+@app.route('/update-health-metrics')
+def update_health_metrics():
+    return render_template('update_health_metrics.html')
+
+
+@app.route('/view-goals')
+def view_goals():
+    return render_template('view_goals.html')
+
+@app.route('/edit-goals')
+def edit_goals():
+    return render_template('edit_goals.html')
+
+@app.route('/goals')
+def goals():
+    return render_template('goals.html')
+
+
 @app.route('/dashboard')
 def dashboard():
-    if 'user' not in session:
-        return redirect(url_for('login'))
+  if 'user' not in session:
+    return redirect(url_for('login'))
     # Example data for the dashboard
     user_data = {
         'fitness_goals': 'Lose 5kg in 3 months',
