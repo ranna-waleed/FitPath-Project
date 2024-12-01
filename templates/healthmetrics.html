@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Set your goal</title>
+    <title>Health Metrics</title>
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,600,700&display=swap" rel="stylesheet">
@@ -12,8 +12,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
     <style>
-        .btn-custom {
+         .btn-custom {
             font-size: 18px;
             padding: 12px 30px;
             width: 250px;
@@ -23,9 +27,6 @@
             text-align: center;
         }
     </style>
-</head>
-<body>
-
 
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="{{ url_for('static', filename='images/breadcrumb-bg.jpg') }}">
@@ -33,10 +34,10 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <div class="breadcrumb-text">
-                        <h2>Set Goals</h2>
+                        <h2>Update Health Metrics</h2>
                         <div class="bt-option">
                             <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                            <span>Set Goals</span>
+                            <span>Update Health Metrics</span>
                         </div>
                     </div>
                 </div>
@@ -45,49 +46,36 @@
     </section>
     <!-- Breadcrumb Section End -->
 
-    <!-- Goals Section Begin -->
+    <!-- Update Health Metrics Section Begin -->
     <section class="dashboard-section spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h4>Set Your Goals</h4><
-                    <form id="goalsForm" method="POST" action="{{ url_for('userGoal_insert') }}">
+                    <h4>Log New Health Metrics</h4>
+                    <form id="logMetricsForm" method="POST" action="{{ url_for('healthMetrics_insert') }}">
                         <div class="form-group">
-                            <label for="goal">Goal:</label>
-                            <select id="goal" name="goal" class="form-control">
-                                <option value="Lose weight">Lose Weight</option>
-                                <option value="Maintain">Maintain</option>
-                                <option value="ToneUp">Tone Up</option>
-                                <option value="Build muscle">Build Muscle</option>
-                            </select>
+                            <label for="weight">Weight (kg):</label>
+                            <input type="number" id="weight" name="weight" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="activity_level">Activity Level:</label>
-                            <select id="activity_level" name="activity_level" class="form-control">
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                            </select>
+                            <label for="height">Height:</label>
+                            <input type="number" id="height" name="height" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="exercise_frequency">Exercise Frequency (days per week):</label>
-                            <input type="number" id="exercise_frequency" name="exercise_frequency" class="form-control" min="1" max="7">
-                        </div>
-                        <div class="form-group">
-                            <label for="target_date">Target Date:</label>
-                            <input type="date" id="target_date" name="target_date" class="form-control">
+                            <label for="bmi">BMI:</label>
+                            <input type="number" id="bmi" name="bmi" class="form-control">
                         </div>
                         <div class="form-group">
                             <label for="notes">Notes:</label>
                             <textarea id="notes" name="notes" class="form-control" rows="4"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-custom">Save</button>
+                        <button type="submit" class="btn btn-custom save-button">Save</button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Goals Section End -->
+    <!-- Update Health Metrics Section End -->
 
     <!-- Footer Section Begin -->
     <section class="footer-section">
