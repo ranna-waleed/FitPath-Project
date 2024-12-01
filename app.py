@@ -773,23 +773,6 @@ def gallery():
 #     return render_template('goals.html')
 
 
-@app.route('/dashboard')
-def dashboard():
-  if 'user' not in session:
-    return redirect(url_for('login'))
-    # Example data for the dashboard
-    user_data = {
-        'fitness_goals': 'Lose 5kg in 3 months',
-        'workouts': '3 workouts per week',
-        'nutrition': '1500 calories per day',
-        'progress': {
-            'weight_loss': [70, 69, 68, 67, 66],
-            'calories_consumed': [1600, 1500, 1400, 1300, 1200]
-        }
-    }
-    return render_template('dashboard.html', user_data=user_data)
-
-
 @app.route('/blog')
 def blog():
     return render_template('blog.html')
