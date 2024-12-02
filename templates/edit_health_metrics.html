@@ -55,15 +55,15 @@
                     <form id="editMetricsForm" method="POST">
                         <div class="form-group">
                             <label for="weight">Weight (kg):</label>
-                            <input type="number" id="weight" name="weight" class="form-control" value="{{ metrics.weight }}">
+                            <input type="text" id="weight" name="weight" class="form-control" value="{{ metrics.weight }}" oninput="validateInput(this)">
                         </div>
                         <div class="form-group">
                             <label for="height">Height:</label>
-                            <input type="number" id="height" name="height" class="form-control" value="{{ metrics.height }}">
+                            <input type="text" id="height" name="height" class="form-control" value="{{ metrics.height }}" oninput="validateInput(this)">
                         </div>
                         <div class="form-group">
                             <label for="bmi">BMI:</label>
-                            <input type="number" id="bmi" name="bmi" class="form-control" value="{{ metrics.bmi }}">
+                            <input type="text" id="bmi" name="bmi" class="form-control" value="{{ metrics.bmi }}" oninput="validateInput(this)">
                         </div>
                         <div class="form-group">
                             <label for="notes">Notes:</label>
@@ -92,5 +92,11 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        function validateInput(input) {
+            input.value = input.value.replace(/[^0-9.]/g, ''); // Allow only numbers and dots
+            if (input.value < 0) input.value = ''; // Prevent negative numbers
+        }
+    </script>
 </body>
 </html>

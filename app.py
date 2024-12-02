@@ -35,7 +35,11 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(user_id)  
+    user = User.query.get(user_id)
+    if user:
+        return user
+    else:
+        return None 
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -200,7 +204,7 @@ class caloriesTracker(db.Model):
     __tablename__ = 'caloriesTracker'
     
     Id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(450), db.ForeignKey('Users.id'), nullable=False)  
+    User_id = db.Column(db.String(450), db.ForeignKey('Users.id'), nullable=False)  
     Calories = db.Column(db.Integer, nullable=False)  
     Date = db.Column(db.Date, nullable=False, default=db.func.current_date())
     
@@ -214,7 +218,7 @@ class weightTracker(db.Model):
     __tablename__ = 'weightTracker'
     
     Id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(450), db.ForeignKey('Users.id'), nullable=False)  
+    User_id = db.Column(db.String(450), db.ForeignKey('Users.id'), nullable=False)  
     Week = db.Column(db.SmallInteger, nullable=False)  
     Weight = db.Column(db.DECIMAL(5,2), nullable=False)
     
@@ -399,7 +403,6 @@ def getUserGoal():
     else:
         return None
 
-
 def getUserMetrics():
     metrics = HealthMetrics.query.filter_by(user_id=current_user.id).order_by(HealthMetrics.created_at.desc()).first_or_404()
     
@@ -471,6 +474,7 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.clear()
     return redirect(url_for('login'))
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -548,6 +552,7 @@ def userGoal_insert():
     return render_template('goals.html')
 
 @app.route('/dashboard', methods=['GET'])
+@login_required
 def dashboard():
     user_id = current_user.id
     
@@ -569,15 +574,29 @@ def dashboard():
 
 
 @app.route('/weight-data', methods=['GET'])
+@login_required
 def get_weight_data():
     user_id = current_user.id
     weight_data = db.session.query(weightTracker.Week, weightTracker.Weight).filter_by(User_id=user_id).all()
+    if weight_data:
+        for data in weight_data:
+            print(f"Week: {data.Week}, Weight: {data.Weight}")
+            
+    else:
+        print("No data in weight_data")
     return jsonify([{'week': f"Wk {w[0]}", 'weight': float(w[1])} for w in weight_data])
 
 @app.route('/calories-data', methods=['GET'])
+@login_required
 def get_calories_data():
     user_id = current_user.id
     calories_data = db.session.query(caloriesTracker.Date, caloriesTracker.Calories).filter_by(User_id=user_id).all()
+    if calories_data:
+        for data in calories_data:
+            print(f"Date: {data.Date}, Calories: {data.Calories}")
+            
+    else:
+        print("No data in calories tracker")
     # Format date into readable day names
     formatted_data = [{'day': d.Date.strftime('%A'), 'calories': d.Calories} for d in calories_data]
     return jsonify(formatted_data)
@@ -669,7 +688,6 @@ def edit_health_metrics():
         flash("No health metrics found", "warning")
         return redirect(url_for('dashboard'))
 
-
 #NOT TESTED
 @app.route('/admin_viewproblems')
 @login_required
@@ -753,31 +771,6 @@ def class_details():
 @app.route('/blog-details')
 def blog_details():
     return render_template('blog-details.html')
-
-
-@app.route('/editforfitnessgoals', methods=['GET', 'POST'])
-def editforfitnessgoals():
-    if 'user' not in session:
-        return redirect(url_for('dashboard'))
-    
-    if request.method == 'POST':
-        
-        flash('Fitness goals updated successfully!', 'success')
-        return redirect(url_for('profile'))
-    
-    return render_template('editforfitnessgoals.html')
-
-
-@app.route('/editforhealthmetric', methods=['GET', 'POST'])
-def editforhealthmetric():
-    if 'user' not in session:
-        return redirect(url_for('dashboard'))
-    
-    if request.method == 'POST':
-        flash('Health metrics updated successfully!', 'success')
-        return redirect(url_for('profile'))
-    
-    return render_template('editforhealthmetric.html', health_metrics=session.get('user_data', {}))
 
 @app.route('/main')
 def main():
