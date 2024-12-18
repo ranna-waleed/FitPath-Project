@@ -1,13 +1,34 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_wtf import FlaskForm
+from flask import current_app
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, Length, ValidationError, Email
 from datetime import datetime
 import uuid
-from app import db
+from models import db
+
+###########
+db = SQLAlchemy()  # You can now initialize db separately when creating the app
+############
 
 
+class User(db.Model, UserMixin):
+    __tablename__ = 'Users'
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))  # Use UUIDs for user IDs
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=True)
+    PasswordHash = db.Column(db.String(80), nullable=False)
+    FullName = db.Column(db.String(40), nullable=False)
+    State = db.Column(db.Boolean, nullable=False, default=True)
+    phonenumber = db.Column(db.String(15), nullable=True)  # Add phone number column
+
+class Roles(db.Model):
+    __tablename__ = 'UserRoles'
+    UserId = db.Column(db.String(450),  primary_key=True, nullable=False)
+    RoleId = db.Column(db.String(450),  primary_key=True, nullable=False)
+    
 
 class DatabaseHelper:
     def __init__(self, db_session):
