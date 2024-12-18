@@ -34,47 +34,76 @@
             width: 300px; /* Decreased graph width */
             height: 100px; /* Decreased graph height */
         }
+        .logout-btn {
+            color: white;
+        }
     </style>
 </head>
 <body>
 </head>
 <body>
-    <!-- Offcanvas Menu Section Begin -->
-    <div class="offcanvas-menu-overlay"></div>
-    <div class="offcanvas-menu-wrapper">
-        <div class="canvas-close">
-            <i class="fa fa-close"></i>
-        </div>
-        <nav class="canvas-menu mobile-menu">
-            <ul>
+      <!-- Offcanvas Menu Section Begin -->
+      <div class="offcanvas-menu-overlay"></div>
+      <div class="offcanvas-menu-wrapper">
+          <div class="canvas-close">
+              <i class="fa fa-close"></i>
+          </div>
+          <div class="canvas-search search-switch">
+              <i class="fa fa-search"></i>
+          </div>
+          <nav class="canvas-menu mobile-menu">
+              <ul>
                 <li><a href="{{ url_for('profile') }}">Profile</a></li>
                 <li><a href="{{ url_for('support') }}">Support</a></li>
-            </ul>
-        </nav>
-    </div>
-    <!-- Offcanvas Menu Section End -->
 
-    <!-- Header Section Begin -->
-    <header class="header-section">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-3"></div>
-                <div class="col-lg-6">
-                    <nav class="nav-menu">
-                        <ul>
-                            <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                            <li><a href="{{ url_for('support') }}">Support</a></li>
-                            <a href="{{ url_for('logout') }}">Logout</a>
+                  <li><a href="#">Profile</a>
+                      <ul class="dropdown">
+                                <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
+                                <li><a href="{{ url_for('edit_goals') }}">Fitness Goals</a></li>
+                                <li><a href="{{ url_for('edit_health_metrics') }}">Health Metrics</a></li>
                         </ul>
-                    </nav>
-                </div>
-            </div>
-            <div class="canvas-open">
-                <i class="fa fa-bars"></i>
-            </div>
-        </div>
-    </header>
-    <!-- Header Section End -->
+                 </li>
+              </ul>
+          </nav>
+      </div>
+      <!-- Offcanvas Menu Section End -->
+  
+      <!-- Header Section Begin -->
+      <header class="header-section">
+          <div class="container-fluid">
+              <div class="row">
+                  <div class="col-lg-3">
+                      <div class="logo">
+                          <a href="{{ url_for('home') }}">
+                              <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+                          </a>
+                      </div>
+                  </div>
+                  <div class="col-lg-6">
+                      <nav class="nav-menu">
+                          <ul>
+                            <li><a href="{{ url_for('support') }}">Support</a></li>
+                         
+                              <li><a href="#">Profile</a>
+                                <ul class="dropdown">
+                                          <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
+                                          <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
+                                          <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                                  </ul>
+                              </li>
+                              <a href="{{ url_for('logout') }}">Logout</a>
+                          </ul>
+                      </nav>
+                  </div>
+              </div>
+              <div class="canvas-open">
+                  <i class="fa fa-bars"></i>
+              </div>
+          </div>
+      </header>
+      <!-- Header End -->
+  
+  
 
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="{{ url_for('static', filename='images/breadcrumb-bg.jpg') }}">
