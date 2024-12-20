@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Workout Plan</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Oswald:300,400,500,600,700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS and Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}" type="text/css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        /* Custom button styles */
+        .btn-custom {
+            font-size: 18px;
+            padding: 12px 30px;
+            width: 250px; /* Increased button width */
+            margin: 10px;
+            background-color: orange;
+            color: white;
+            text-align: center;
+        }
+
+        /* Decrease size of the graphs */
+        svg {
+            width: 300px; /* Decreased graph width */
+            height: 100px; /* Decreased graph height */
+        }
+    </style>
+</head>
+<body>
+    <!-- Offcanvas Menu Section Begin -->
+    <div class="offcanvas-menu-overlay"></div>
+    <div class="offcanvas-menu-wrapper">
+        <div class="canvas-close">
+            <i class="fa fa-close"></i>
+        </div>
+        <div class="canvas-search search-switch">
+            <i class="fa fa-search"></i>
+        </div>
+        <nav class="canvas-menu mobile-menu">
+            <ul>
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a href="{{ url_for('support') }}">Support</a></li>
+                <li><a href="#">Profile</a>
+                    <ul class="dropdown">
+                        <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                        <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                        <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <!-- Offcanvas Menu Section End -->
+
+    <!-- Header Section Begin -->
+    <header class="header-section">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="logo">
+                        <a href="{{ url_for('home') }}">
+                            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <nav class="nav-menu">
+                        <ul>
+                            <li><a href="{{ url_for('support') }}">Support</a></li>
+                            <li><a href="{{ url_for('logout') }}" class="logout-btn">Logout</a></li>
+                            <li><a href="#">Profile</a>
+                                <ul class="dropdown">
+                                    <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                                    <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                                    <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="canvas-open">
+                <i class="fa fa-bars"></i>
+            </div>
+        </div>
+    </header>
+    <!-- Header End -->
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-section set-bg" data-setbg="{{ url_for('static', filename='images/breadcrumb-bg.jpg') }}">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="breadcrumb-text">
+                        <h2>Full Workout Plan</h2>
+                        <div class="bt-option">
+                            <a href="{{ url_for('home') }}">Home</a>
+                            <span>Workout Plan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Workout Plan Section Begin -->
+    <section class="workout-plan-section spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>Workout Plan</h4>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Workout Date</th>
+                                <th>Exercise Name</th>
+                                <th>Type</th>
+                                <th>Duration</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for workout in workouts %}
+                            <tr>
+                                <td>{{ workout.date }}</td>
+                                <td>{{ workout.workout.name }}</td>
+                                <td>{{ workout.workout.type }}</td>
+                                <td>{{ workout.workout.duration }}</td>
+                                <td>{{ workout.workout.description }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Workout Plan Section End -->
+
+    <!-- Footer Section (from original template) -->
+    <section class="footer-section">
+        <div class="container">
+            <div class="row">
+                <!-- Footer content here -->
+            </div>
+        </div>
+    </section>
+    <!-- Footer Section End -->
+
+    <!-- Js Plugins -->
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

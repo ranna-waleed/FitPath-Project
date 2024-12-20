@@ -65,19 +65,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for meal in meals %}
-                            <tr>
-                                <td>{{ meal.name }}</td>
-                                <td>{{ meal.type }}</td>
-                                <td>{{ meal.calories }}</td>
-                                <td>{{ meal.protein }}</td>
-                                <td>{{ meal.carbs }}</td>
-                                <td>{{ meal.fats }}</td>
-                                <td>{{ meal.notes }}</td>
-                                <td>{{ meal.created_at }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
+                            {% if meals %}
+                                {% for meal in meals %}
+                                <tr>
+                                    <td>{{ meal.meal_name }}</td>
+                                    <td>{{ meal.meal_type  }}</td>
+                                    <td>{{ meal.calories }}</td>
+                                    <td>{{ meal.protein }}</td>
+                                    <td>{{ meal.carbs }}</td>
+                                    <td>{{ meal.fats }}</td>
+                                    <td>{{ meal.notes }}</td>
+                                    <td>{{ meal.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No meals found.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>  
                     </table>
                 </div>
             </div>
