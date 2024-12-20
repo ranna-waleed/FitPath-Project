@@ -57,11 +57,11 @@
                 <li><a href="{{ url_for('support') }}">Support</a></li>
 
                   <li><a href="#">Profile</a>
-                      <ul class="dropdown">
-                                <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                                <li><a href="{{ url_for('edit_goals') }}">Fitness Goals</a></li>
-                                <li><a href="{{ url_for('edit_health_metrics') }}">Health Metrics</a></li>
-                        </ul>
+                    <ul class="dropdown">
+                        <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                        <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                        <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
+                     </ul>
                  </li>
               </ul>
           </nav>
@@ -83,15 +83,16 @@
                       <nav class="nav-menu">
                           <ul>
                             <li><a href="{{ url_for('support') }}">Support</a></li>
+                            
                          
-                              <li><a href="#">Profile</a>
+                            <li><a href="#">Profile</a>
                                 <ul class="dropdown">
-                                          <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                                          <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                                          <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                                          <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                                          <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                                          <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                                   </ul>
-                              </li>
-                              <a href="{{ url_for('logout') }}">Logout</a>
+                            </li>
+                            <a href="{{ url_for('logout') }}">Logout</a>
                           </ul>
                       </nav>
                   </div>
@@ -148,9 +149,11 @@
             </div>
             <div class="row mt-4">
                 <div class="col-lg-12 text-center">
-                    <a href="/log-meal" class="btn btn-custom">View Meals</a>
-                    <a href="{{ url_for('update_health_metrics') }}" class="btn btn-custom">Update Health Metrics</a>
+                    <a href="{{ url_for('view_meals') }}" class="btn btn-custom">View Meals</a>
+                    <a href="{{ url_for('edit_health_metrics') }}" class="btn btn-custom">Update Health Metrics</a>
                     <a href="{{ url_for('update_goals') }}" class="btn btn-custom">Update Goals</a>
+                    <a href="{{ url_for('todays_workout') }}" class="btn btn-custom">Your Workout</a>
+
                 </div>
             </div>
         </div>

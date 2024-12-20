@@ -62,13 +62,20 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% if metrics %}
                             <tr>
-                                <td id="weightValue">{{weight }}</td>
-                                <td id="heightValue">{{height }}</td>
-                                <td id="bmiValue">{{bmi }}</td>
-                                <td id="notesValue">{{ notes }}</td>
+                                <td id="weightValue">{{ metrics.weight }}</td>
+                                <td id="heightValue">{{ metrics.height }}</td>
+                                <td id="bmiValue">{{ metrics.bmi }}</td>
+                                <td id="notesValue">{{ metrics.notes }}</td>
                             </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4">No health metrics found.</td>
+                            </tr>
+                            {% endif %}
                         </tbody>
+                        
                     </table>
                 </div>
             </div>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Personal Info</title>
+    <title>Nutrition Plan</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-
     <style>
         /* Custom button styles */
         .btn-custom {
@@ -52,9 +51,9 @@
                 <li><a href="{{ url_for('support') }}">Support</a></li>
                 <li><a href="#">Profile</a>
                     <ul class="dropdown">
-                        <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
-                        <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
-                        <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
+                        <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
+                        <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
+                        <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
                     </ul>
                 </li>
             </ul>
@@ -80,9 +79,9 @@
                             <li><a href="{{ url_for('logout') }}" class="logout-btn">Logout</a></li>
                             <li><a href="#">Profile</a>
                                 <ul class="dropdown">
-                                    <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
-                                    <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
-                                    <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
+                                    <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
+                                    <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
+                                    <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -102,10 +101,10 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <div class="breadcrumb-text">
-                        <h2>Personal Info</h2>
+                        <h2>Full Nutrition Plan</h2>
                         <div class="bt-option">
-                            <a href="{{ url_for('userInfoProfile') }}">Profile</a>
-                            <span>Personal Info</span>
+                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                            <span>Nutrition Plan</span>
                         </div>
                     </div>
                 </div>
@@ -114,32 +113,41 @@
     </section>
     <!-- Breadcrumb Section End -->
 
-    <!-- Personal Info Section Begin -->
-    <section class="personal-info-section spad">
+    <!-- Nutrition Plan Section Begin -->
+    <section class="nutrition-plan-section spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h4>Personal Information</h4>
-                    <form action="{{ url_for('editUserInfo') }}" method="POST">
-                        <div class="form-group">
-                            <label for="name">Name:</label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ name }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ email }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Phone Number:</label>
-                            <input type="text" class="form-control" id="phone" name="phone" value="{{ phone }}" pattern="\d{11}" maxlength="11" minlength="11" title="Phone number should be 11 digits">
-                        </div>
-                        <button type="submit" class="btn btn-custom">Save</button>
-                    </form>
+                    <h4>Full Meals Plan</h4>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Calories</th>
+                                <th>Carbs</th>
+                                <th>Protein</th>
+                                <th>Fats</th>
+                                <th>Log Date</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meal in todays_meals %}
+                            <tr>
+                                <td>{{ meal.calories }}</td>
+                                <td>{{ meal.carbs }}</td>
+                                <td>{{ meal.protein }}</td>
+                                <td>{{ meal.fats }}</td>
+                                <td>{{ meal.log_date }}</td>
+                                <td>{{ meal.notes }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Personal Info Section End -->
+    <!-- Nutrition Plan Section End -->
 
     <!-- Footer Section (from original template) -->
     <section class="footer-section">
