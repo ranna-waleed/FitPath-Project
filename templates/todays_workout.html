@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Nutrition Plan</title>
+    <title>Workout</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
@@ -52,9 +52,9 @@
                 <li><a href="{{ url_for('support') }}">Support</a></li>
                 <li><a href="#">Profile</a>
                     <ul class="dropdown">
-                        <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                        <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                        <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                        <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                        <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                        <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                     </ul>
                 </li>
             </ul>
@@ -80,9 +80,9 @@
                             <li><a href="{{ url_for('logout') }}" class="logout-btn">Logout</a></li>
                             <li><a href="#">Profile</a>
                                 <ul class="dropdown">
-                                    <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                                    <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                                    <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                                    <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                                    <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                                    <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -102,10 +102,10 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <div class="breadcrumb-text">
-                        <h2>Nutrition Plan</h2>
+                        <h2>Workout</h2>
                         <div class="bt-option">
-                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                            <span>Nutrition Plan</span>
+                            <a href="{{ url_for('home') }}">Home</a>
+                            <span>Workout</span>
                         </div>
                     </div>
                 </div>
@@ -114,44 +114,40 @@
     </section>
     <!-- Breadcrumb Section End -->
 
-    <!-- Nutrition Plan Section Begin -->
-    <section class="nutrition-plan-section spad">
+    <!-- Workout Section Begin -->
+    <section class="workout-section spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h4>Today's Meals Plan</h4>
+                    <h4>Today's Workout</h4>
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Calories</th>
-                                <th>Carbs</th>
-                                <th>Protein</th>
-                                <th>Fats</th>
-                                <th>Log Date</th>
-                                <th>Notes</th>
+                                <th>Exercise Name</th>
+                                <th>Type</th>
+                                <th>Duration</th>
+                                <th>Description</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for meal in todays_meals %}
+                            {% for workout in workouts %}
                             <tr>
-                                <td>{{ meal.calories }}</td>
-                                <td>{{ meal.carbs }}</td>
-                                <td>{{ meal.protein }}</td>
-                                <td>{{ meal.fats }}</td>
-                                <td>{{ meal.log_date }}</td>
-                                <td>{{ meal.notes }}</td>
+                                <td>{{ workout.workout.name }}</td>
+                                <td>{{ workout.workout.type }}</td>
+                                <td>{{ workout.workout.duration }}</td>
+                                <td>{{ workout.workout.description }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                     <div class="text-center mt-4">
-                        <a href="{{ url_for('nutrition_plan') }}" class="btn btn-custom">View Whole Meals Plan</a>
+                        <a href="{{ url_for('workout_plan') }}" class="btn btn-custom">View Whole Plan</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Nutrition Plan Section End -->
+    <!-- Workout Section End -->
 
     <!-- Footer Section (from original template) -->
     <section class="footer-section">

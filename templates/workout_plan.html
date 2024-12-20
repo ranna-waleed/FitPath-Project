@@ -52,9 +52,9 @@
                 <li><a href="{{ url_for('support') }}">Support</a></li>
                 <li><a href="#">Profile</a>
                     <ul class="dropdown">
-                        <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                        <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                        <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                        <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                        <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                        <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                     </ul>
                 </li>
             </ul>
@@ -80,9 +80,9 @@
                             <li><a href="{{ url_for('logout') }}" class="logout-btn">Logout</a></li>
                             <li><a href="#">Profile</a>
                                 <ul class="dropdown">
-                                    <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                                    <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                                    <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                                    <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                                    <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                                    <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -125,21 +125,19 @@
                             <tr>
                                 <th>Workout Date</th>
                                 <th>Exercise Name</th>
-                                <th>Sets</th>
-                                <th>Reps</th>
-                                <th>Rest Time</th>
-                                <th>Notes</th>
+                                <th>Type</th>
+                                <th>Duration</th>
+                                <th>Description</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for workout in workout_plan %}
+                            {% for workout in workouts %}
                             <tr>
                                 <td>{{ workout.date }}</td>
-                                <td>{{ workout.exercise_name }}</td>
-                                <td>{{ workout.sets }}</td>
-                                <td>{{ workout.reps }}</td>
-                                <td>{{ workout.rest_time }}</td>
-                                <td>{{ workout.notes }}</td>
+                                <td>{{ workout.workout.name }}</td>
+                                <td>{{ workout.workout.type }}</td>
+                                <td>{{ workout.workout.duration }}</td>
+                                <td>{{ workout.workout.description }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
