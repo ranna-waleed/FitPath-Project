@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Nutrition Plan</title>
+    <title>Full Nutrition Plan</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
@@ -34,6 +34,38 @@
             height: 100px; /* Decreased graph height */
         }
     </style>
+    <style>
+        /* Clean all-white table with borders */
+        .table {
+            font-size: 16px; /* Comfortable font size */
+            text-align: left;
+            border-collapse: collapse; /* Removes double borders */
+            width: 100%;
+            background-color: white; /* Ensures white background */
+        }
+    
+        .table th, .table td {
+            border: 1px solid #dee2e6; /* Light grey borders */
+            padding: 10px; /* Extra padding for readability */
+            text-align: left; /* Align text to the left */
+        }
+    
+        .table th {
+            font-weight: 700; /* Bold header text */
+        }
+    
+        /* Strong border at the end of every row */
+        .table tbody tr {
+            border-bottom: 2px solid #dee2e6; /* Thicker bottom border */
+        }
+    
+        /* Hover effect for better UX */
+        .table tbody tr:hover {
+            background-color: #f9f9f9; /* Subtle hover effect */
+        }
+        /* Highlight the Day column */
+
+    </style>
 </head>
 <body>
     <!-- Offcanvas Menu Section Begin -->
@@ -51,9 +83,9 @@
                 <li><a href="{{ url_for('support') }}">Support</a></li>
                 <li><a href="#">Profile</a>
                     <ul class="dropdown">
-                        <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                        <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                        <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                        <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                        <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                        <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                     </ul>
                 </li>
             </ul>
@@ -79,9 +111,9 @@
                             <li><a href="{{ url_for('logout') }}" class="logout-btn">Logout</a></li>
                             <li><a href="#">Profile</a>
                                 <ul class="dropdown">
-                                    <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                                    <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                                    <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                                    <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                                    <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                                    <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -118,28 +150,43 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <h4>Full Meals Plan</h4>
+                    <h4>Weekly Meals Plan</h4>
                     <table class="table table-striped">
                         <thead>
                             <tr>
+                                <th>Day</th>
+                                <th>Meal Name</th>
+                                <th>Meal Type</th>
                                 <th>Calories</th>
                                 <th>Carbs</th>
                                 <th>Protein</th>
                                 <th>Fats</th>
-                                <th>Log Date</th>
                                 <th>Notes</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for meal in todays_meals %}
+                            {% for day, meals in enumerated_meals %}
                             <tr>
-                                <td>{{ meal.calories }}</td>
-                                <td>{{ meal.carbs }}</td>
-                                <td>{{ meal.protein }}</td>
-                                <td>{{ meal.fats }}</td>
-                                <td>{{ meal.log_date }}</td>
-                                <td>{{ meal.notes }}</td>
+                                <td rowspan="{{ meals|length }}">Day {{ day }}</td>
+                                <td>{{ meals[0].meal.meal_name }}</td>
+                                <td>{{ meals[0].meal.meal_type }}</td>
+                                <td>{{ meals[0].meal.calories }}</td>
+                                <td>{{ meals[0].meal.carbs }}</td>
+                                <td>{{ meals[0].meal.protein }}</td>
+                                <td>{{ meals[0].meal.fats }}</td>
+                                <td>{{ meals[0].meal.notes }}</td>
                             </tr>
+                            {% for meal in meals[1:] %}
+                            <tr>
+                                <td>{{ meal.meal.meal_name }}</td>
+                                <td>{{ meal.meal.meal_type }}</td>
+                                <td>{{ meal.meal.calories }}</td>
+                                <td>{{ meal.meal.carbs }}</td>
+                                <td>{{ meal.meal.protein }}</td>
+                                <td>{{ meal.meal.fats }}</td>
+                                <td>{{ meal.meal.notes }}</td>
+                            </tr>
+                            {% endfor %}
                             {% endfor %}
                         </tbody>
                     </table>

@@ -104,7 +104,7 @@
                     <div class="breadcrumb-text">
                         <h2>Nutrition Plan</h2>
                         <div class="bt-option">
-                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                            <a href="{{ url_for('trainer_dashboard') }}">Dashboard</a>
                             <span>Nutrition Plan</span>
                         </div>
                     </div>
@@ -117,39 +117,52 @@
     <!-- Nutrition Plan Section Begin -->
     <section class="nutrition-plan-section spad">
         <div class="container">
-            <div class="row">
+            <div class="row justify-content-center">
                 <div class="col-lg-12">
-                    <h4>Today's Meals Plan</h4>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-
-                                <th>Meal Name</th>
-                                <th>Meal Type</th>
-                                <th>Calories</th>
-                                <th>Carbs</th>
-                                <th>Protein</th>
-                                <th>Fats</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for meal in meals %}
-                            <tr>
-                                <td>{{meal.meal.meal_name}}</td>
-                                <td>{{meal.meal.meal_type}}</td>
-                                <td>{{ meal.meal.calories }}</td>
-                                <td>{{ meal.meal.carbs }}</td>
-                                <td>{{ meal.meal.protein }}</td>
-                                <td>{{ meal.meal.fats }}</td>
-                                <td>{{ meal.meal.notes }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="text-center mt-4">
-                        <a href="{{ url_for('weekly_nutrition') }}" class="btn btn-custom">View Weekly Meals Plan</a>
-                    </div>
+                    <h4 class="text-center">Weekly Meals Plan</h4>
+                    <form action="{{ url_for('assign_meal', user_id=user.id) }}" method="POST">
+                        <table class="table table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Breakfast</th>
+                                    <th>Lunch</th>
+                                    <th>Dinner</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for day in range(1, 8) %}
+                                <tr>
+                                    <td>Day {{ day }}</td>
+                                    <td>
+                                        <select name="meal_name_breakfast_{{ day }}" onchange="setMealType(this, {{ day }}, 'breakfast')" required>
+                                            <option value="Scrambled Eggs" data-type="Breakfast" data-calories="300" data-carbs="10" data-protein="20" data-fats="15" data-notes="3 scrambled eggs, 1 tbsp butter">Scrambled Eggs</option>
+                                            <option value="Pancakes" data-type="Breakfast" data-calories="250" data-carbs="35" data-protein="5" data-fats="8" data-notes="3 medium pancakes, 1 tbsp syrup">Pancakes</option>
+                                            <option value="Oatmeal" data-type="Breakfast" data-calories="200" data-carbs="30" data-protein="8" data-fats="7" data-notes="1 serving (1/2 cup dry oats) with 1/2 cup almond milk">Oatmeal</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="meal_name_lunch_{{ day }}" onchange="setMealType(this, {{ day }}, 'lunch')" required>
+                                            <option value="Grilled Chicken Salad" data-type="Lunch" data-calories="400" data-carbs="15" data-protein="30" data-fats="20" data-notes="150g grilled chicken, mixed greens, 2 tbsp dressing">Grilled Chicken Salad</option>
+                                            <option value="Spaghetti Bolognese" data-type="Lunch" data-calories="500" data-carbs="60" data-protein="25" data-fats="15" data-notes="1 cup spaghetti, 100g minced beef, 1/2 cup tomato sauce">Spaghetti Bolognese</option>
+                                            <option value="Chicken Wrap" data-type="Lunch" data-calories="350" data-carbs="35" data-protein="25" data-fats="10" data-notes="1 whole wheat wrap, 120g grilled chicken, lettuce, 1 tbsp mayo">Chicken Wrap</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="meal_name_dinner_{{ day }}" onchange="setMealType(this, {{ day }}, 'dinner')" required>
+                                            <option value="Steak with Veggies" data-type="Dinner" data-calories="600" data-carbs="10" data-protein="40" data-fats="30" data-notes="200g steak, 1 cup roasted vegetables (broccoli, carrots)">Steak with Veggies</option>
+                                            <option value="Grilled Salmon" data-type="Dinner" data-calories="350" data-carbs="5" data-protein="35" data-fats="20" data-notes="150g grilled salmon, 1 tbsp olive oil">Grilled Salmon</option>
+                                            <option value="Vegetable Stir Fry" data-type="Dinner" data-calories="450" data-carbs="60" data-protein="20" data-fats="15" data-notes="1 cup mixed vegetables (broccoli, bell peppers, onions), 1 tbsp soy sauce">Vegetable Stir Fry</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-custom">Save Nutrition Plan</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -171,5 +184,21 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        function setMealType(selectElement, day, mealType) {
+            // Get the selected meal option
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+            // Get the meal type from the 'data-type' attribute
+            document.getElementById(mealType + '_type_' + day).value = selectedOption.getAttribute('data-type');
+    
+            // Get the nutritional values (calories, carbs, protein, fats) from the 'data-' attributes
+            document.getElementById(mealType + '_calories_' + day).value = selectedOption.getAttribute('data-calories');
+            document.getElementById(mealType + '_carbs_' + day).value = selectedOption.getAttribute('data-carbs');
+            document.getElementById(mealType + '_protein_' + day).value = selectedOption.getAttribute('data-protein');
+            document.getElementById(mealType + '_fats_' + day).value = selectedOption.getAttribute('data-fats');
+            document.getElementById(mealType + '_notes_' + day).value = selectedOption.getAttribute('data-notes');
+        }
+    </script>
 </body>
 </html>

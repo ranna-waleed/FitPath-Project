@@ -75,7 +75,7 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Fitness Goals</span>
-                    <a href="{{ url_for('editforfitnessgoals') }}" class="btn btn-primary" style="background-color: orange; color: white;">Edit</a>
+                    <a href="{{ url_for('profilegoal') }}" class="btn btn-primary" style="background-color: orange; color: white;">Edit</a>
                 </div>
                 <div class="card-body">
                     <p>{{ fitness_goals }}</p>
@@ -86,7 +86,7 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Health Metrics</span>
-                    <a href="{{ url_for('editforhealthmetric') }}" class="btn btn-primary" style="background-color: orange; color: white;">Edit</a>
+                    <a href="{{ url_for('edit_health_metrics') }}" class="btn btn-primary" style="background-color: orange; color: white;">Edit</a>
                 </div>
                 <div class="card-body">
                     <p>Weight: {{ weight }} kg</p>

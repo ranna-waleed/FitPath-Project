@@ -17,33 +17,39 @@
 
     <!-- Inline styles for white text -->
     <style>
-        label {
-            color: white !important;
+        body {
+            background-color: white; /* Set background to white */
         }
+
         .form-control {
-            color: white !important; /* For text input */
-            background-color: #333;  /* Optional: change background to dark for better contrast */
+            color: black !important; /* For text input */
+            background-color: #fff;  /* Optional: change background to dark for better contrast */
         }
         select.form-control {
-            color: white !important;
+            color: black !important;
             background-color: #333;
         }
-            select.form-control {
-        color: black !important;
-        background-color: #fff !important; /* White background for contrast */
-    }
-    select.form-control option {
-        color: black !important; /* Black text for dropdown options */
-    }
-    .btn-orange {
-        background-color: orange;
-        border-color: orange;
-        color: white;
-    }
-    .btn-orange:hover {
-        background-color: darkorange;
-        border-color: darkorange;
-    }
+        select.form-control option {
+            color: black !important; /* Black text for dropdown options */
+        }
+        .btn-orange {
+            background-color: orange;
+            border-color: orange;
+            color: white;
+        }
+
+        body {
+            background-color: black; /* Set background to white */
+        }
+        .breadcrumb-section {
+            background-color: white !important; /* Ensure breadcrumb section is white */
+        }
+        .blog-section {
+            background-color: white !important; /* Ensure blog section is white */
+        }
+        .footer-section {
+            background-color: black !important; /* Ensure footer section is white */
+        }
     </style>
 </head>
 <body>
@@ -80,7 +86,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="category">Issue Category:</label>
-                                    <select id="category" name="category" class="form-control" style="color: black; background-color: #fff;">
+                                    <select id="category" name="category" class="form-control" style="color: white; background-color: #fff;">
                                         <option value="">Select Category</option>
                                         <option value="membership">Membership Help</option>
                                         <option value="billing">Billing Questions</option>
@@ -88,7 +94,6 @@
                                         <option value="technical">Technical Support</option>
                                         <option value="other">Other</option>
                                     </select>
-                                    
                             </div>
                             <button type="submit" class="btn btn-orange btn-lg">Submit Support Request</button>
                         </form>
