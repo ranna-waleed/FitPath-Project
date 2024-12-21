@@ -114,48 +114,68 @@
     </section>
     <!-- Breadcrumb Section End -->
 
-      <!-- Workout Plan Section Begin -->
-      <section class="workout-plan-section spad">
+    <!-- Workout Plan Section Begin -->
+    <section class="workout-plan-section spad">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h4>Workout Plan</h4>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Day</th>
-                                <th>Exercise Name</th>
-                                <th>Type</th>
-                                <th>Duration</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for date, workouts in grouped_workouts.items() %}
-                            <tr>
-                                <td rowspan="{{ workouts|length }}">Day {{ loop.index }}</td>
-                                <td>{{ workouts[0].workout.name }}</td>
-                                <td>{{ workouts[0].workout.type }}</td>
-                                <td>{{ workouts[0].workout.duration }}</td>
-                                <td>{{ workouts[0].workout.description }}</td>
-                            </tr>
-                            {% for workout in workouts[1:] %}
-                            <tr>
-                                <td>{{ workout.workout.name }}</td>
-                                <td>{{ workout.workout.type }}</td>
-                                <td>{{ workout.workout.duration }}</td>
-                                <td>{{ workout.workout.description }}</td>
-                            </tr>
-                            {% endfor %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <h4 class="text-center">Workout Plan</h4>
+                    <form action="{{ url_for('workout_plan') }}" method="POST">
+                        <table class="table table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Exercise Name</th>
+                                    <th>Type</th>
+                                    <th>Duration</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for day in range(1, 8) %}
+                                <tr>
+                                    <td>Day {{ day }}</td>
+                                    <td>
+                                        <select name="exercise_name_{{ day }}" onchange="setExerciseType(this, {{ day }})" required>
+                                            <option value="Push-ups" data-type="Strength">Push-ups</option>
+                                            <option value="Squats" data-type="Strength">Squats</option>
+                                            <option value="Lunges" data-type="Strength">Lunges</option>
+                                            <option value="Bicep Curls" data-type="Strength">Bicep Curls</option>
+                                            <option value="Tricep Dips" data-type="Strength">Tricep Dips</option>
+                                            <option value="Deadlifts" data-type="Strength">Deadlifts</option>
+                                            <option value="Pull-Ups" data-type="Strength">Pull-Ups</option>
+                                            <option value="Bench Press" data-type="Strength">Bench Press</option>
+                                            <option value="Wall Sit" data-type="Strength">Wall Sit</option>
+                                            <option value="Jogging" data-type="Cardio">Jogging</option>
+                                            <option value="Burpees" data-type="Cardio">Burpees</option>
+                                            <option value="Mountain Climbers" data-type="Cardio">Mountain Climbers</option>
+                                            <option value="High Knees" data-type="Cardio">High Knees</option>
+                                            <option value="Jump Rope" data-type="Cardio">Jump Rope</option>
+                                            <option value="Shadow Boxing" data-type="Cardio">Shadow Boxing</option>
+                                            <option value="Plank" data-type="Core">Plank</option>
+                                            <option value="Russian Twists" data-type="Core">Russian Twists</option>
+                                            <option value="Crunches" data-type="Core">Crunches</option>
+                                            <option value="Side Plank" data-type="Core">Side Plank</option>
+                                            <option value="Leg Raises" data-type="Core">Leg Raises</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="text" name="type_{{ day }}" id="type_{{ day }}" readonly required></td>
+                                    <td><input type="text" name="duration_{{ day }}" required></td>
+                                    <td><input type="text" name="description_{{ day }}" required></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-custom">Save Workout Plan</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </section>
     <!-- Workout Plan Section End -->
-     
+
     <!-- Footer Section (from original template) -->
     <section class="footer-section">
         <div class="container">
@@ -171,5 +191,12 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        function setExerciseType(select, day) {
+            var selectedOption = select.options[select.selectedIndex];
+            var exerciseType = selectedOption.getAttribute('data-type');
+            document.getElementById('type_' + day).value = exerciseType;
+        }
+    </script>
 </body>
 </html>
