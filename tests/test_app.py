@@ -1,67 +1,111 @@
 import unittest
+from unittest.mock import patch, MagicMock
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, UserMixin
-import sys
-import os
+from app import app, add_problem, addHmetrics, addGoal, getUserGoal, getUserMetrics
 
-# Add the parent directory to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) 
-from models import User, Problem
-
-class TestApp(unittest.TestCase):
-
+class FlaskAppTestCase(unittest.TestCase):
     def setUp(self):
-        # Create a test Flask application
-        self.app = Flask(__name__) 
-        self.app.config['TESTING'] = True
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        self.app = app.test_client()
+        self.app.testing = True
 
-        # Initialize extensions
-        self.db = SQLAlchemy(self.app)
-        self.bcrypt = Bcrypt(self.app)
-        self.login_manager = LoginManager()
-        self.login_manager.init_app(self.app)
+    def test_home(self):
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
 
-        # Create tables
-        with self.app.app_context():
-            self.db.create_all()
+    def test_login(self):
+        response = self.app.get('/login')
+        self.assertEqual(response.status_code, 200)
 
-    def tearDown(self):
-        # Drop all tables after each test
-        with self.app.app_context():
-            self.db.session.remove()
-            self.db.drop_all()
+    def test_register(self):
+        response = self.app.get('/register')
+        self.assertEqual(response.status_code, 200)
 
-    def test_user_creation(self):
-        with self.app.app_context():
-            # Create a new user
-            user = User(username='testuser', email='test@example.com', password=self.bcrypt.generate_password_hash('password').decode('utf-8'))
-            self.db.session.add(user)
-            self.db.session.commit()
+    def test_about_us(self):
+        response = self.app.get('/about-us')
+        self.assertEqual(response.status_code, 200)
 
-            # Query the user and check if it exists
-            queried_user = User.query.filter_by(username='testuser').first()
-            self.assertIsNotNone(queried_user)
-            self.assertEqual(queried_user.email, 'test@example.com')
+    def test_support(self):
+        with patch('app.getProblems', return_value=[]):
+            response = self.app.get('/support', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
 
-    def test_problem_creation(self):
-        with self.app.app_context():
-            # Create a new user and problem
-            user = User(username='testuser', email='test@example.com', password=self.bcrypt.generate_password_hash('password').decode('utf-8'))
-            self.db.session.add(user)
-            self.db.session.commit()
+    def test_add_problem(self):
+        with patch('app.add_problem', return_value=(True, "Problem added successfully!")):
+            response = self.app.post('/add_problem', data=dict(description='Test problem'), follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
 
-            problem = Problem(description='Test problem', status='Pending', user_id=user.id)
-            self.db.session.add(problem)
-            self.db.session.commit()
+    def test_healthMetrics_insert(self):
+        response = self.app.get('/Healthmetrics_Insert')
+        self.assertEqual(response.status_code, 200)
 
-            # Query the problem and check if it exists
-            queried_problem = Problem.query.filter_by(description='Test problem').first()
-            self.assertIsNotNone(queried_problem)
-            self.assertEqual(queried_problem.status, 'Pending')
+    def test_userGoal_insert(self):
+        response = self.app.get('/GoalInsert')
+        self.assertEqual(response.status_code, 200)
 
-if __name__ == '_main_':
+    def test_dashboard(self):
+        with patch('app.get_user_role', return_value="User"):
+            response = self.app.get('/dashboard', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_user_dashboard(self):
+        with patch('app.getUserGoal', return_value={'goal': 'Lose weight', 'target_date': '2024-12-31'}):
+            with patch('app.getUserMetrics', return_value={'weight': 70, 'height': 175, 'bmi': 22.9}):
+                response = self.app.get('/user_dashboard', follow_redirects=True)
+                self.assertEqual(response.status_code, 200)
+
+    def test_get_weight_data(self):
+        with patch('app.db.session.query', return_value=MagicMock(all=MagicMock(return_value=[]))):
+            response = self.app.get('/weight-data', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_get_calories_data(self):
+        with patch('app.db.session.query', return_value=MagicMock(all=MagicMock(return_value=[]))):
+            response = self.app.get('/calories-data', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_update_goals(self):
+        response = self.app.get('/update-goals', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_meals(self):
+        with patch('app.viewUserMeals', return_value=[]):
+            response = self.app.get('/view-meals', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_profilegoal(self):
+        with patch('app.getUserGoal', return_value={'goal': 'Lose weight', 'target_date': '2024-12-31'}):
+            response = self.app.get('/goalProfile', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_profilemetrics(self):
+        with patch('app.getUserMetrics', return_value={'weight': 70, 'height': 175, 'bmi': 22.9}):
+            response = self.app.get('/metricsProfile', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_userInfoProfile(self):
+        with patch('app.getUserInfo', return_value=('John Doe', 'john@example.com', '1234567890')):
+            response = self.app.get('/infoProfile', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_todays_workout(self):
+        with patch('app.getTodaysWorkout', return_value=[]):
+            response = self.app.get('/todays-workout', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_workout_plan(self):
+        with patch('app.getFullWorkoutPlan', return_value=[]):
+            response = self.app.get('/full-workout', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_todays_nutrition(self):
+        with patch('app.getTodaysMeals', return_value=[]):
+            response = self.app.get('/todays-nutrition', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+    def test_weekly_nutrition(self):
+        with patch('app.getWeeklyMeals', return_value=[]):
+            response = self.app.get('/weekly-nutrition', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+
+if __name__ == '__main__':
     unittest.main()
