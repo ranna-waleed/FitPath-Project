@@ -7,6 +7,7 @@ import time
 
 # Initialize the Chrome driver
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.maximize_window()
 try:
     # Open the home page
     driver.get("http://127.0.0.1:5001/")
