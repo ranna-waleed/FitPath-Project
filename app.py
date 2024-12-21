@@ -6,6 +6,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import login_required, logout_user, login_user,current_user
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from wtforms.validators import Email, EqualTo
 
 import urllib
 from flask import jsonify
@@ -76,8 +77,6 @@ def page_not_found(e):
 @app.context_processor
 def inject_name():
     return {'name': getName()}
-
-# UserRoles Model
 
 class DatabaseHelper:
     def __init__(self, db_session):
@@ -153,13 +152,18 @@ class Trainer(db.Model):
 
 class UserTrainerAssignment(db.Model):
     __tablename__ = 'UserTrainerAssignment'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    user_id = db.Column('UserID',db.String(450), ForeignKey('Users.id'), primary_key=True)
-    trainer_id = db.Column('TrainerID', db.Integer, ForeignKey('Trainers.ID'), primary_key=True)
+    user_id = db.Column('UserID',db.String(450), db.ForeignKey('Users.id'), nullable=True)
+    trainer_id = db.Column('TrainerID', db.Integer, db.ForeignKey('Trainers.ID'), nullable=True)
 
     user = relationship("User", back_populates="trainer_assignment")
     trainer = relationship("Trainer", back_populates="users")
-        
+    
+    def __repr__(self):
+        return f'<UserTrainerAssignment id={self.id} user_id={self.user_id} trainer_id={self.trainer_id}>'
+
 class RegisterForm(FlaskForm):
     username = StringField(
         validators=[InputRequired(), Length(min=4, max=20)],
@@ -176,6 +180,10 @@ class RegisterForm(FlaskForm):
     password = PasswordField(
         validators=[InputRequired(), Length(min=4, max=20)],
         render_kw={"placeholder": "Password"}
+    )
+    confirm_password = PasswordField(
+        validators=[InputRequired(), EqualTo('password', message="Passwords must match.")],
+        render_kw={"placeholder": "Confirm Password"}
     )
     submit = SubmitField("Register")
     
@@ -343,8 +351,7 @@ class UserRoles(db.Model):
     
     user = db.relationship('User', backref=db.backref('user_roles', lazy='dynamic'))
     role = db.relationship('Roles', backref=db.backref('role_users', lazy='dynamic'))
-
-# Roles Model
+    
 class Roles(db.Model):
     __tablename__ = 'Roles'
     
@@ -354,52 +361,6 @@ class Roles(db.Model):
     users = db.relationship('User', secondary='UserRoles', back_populates='roles', lazy='dynamic')
     def __repr__(self):
         return f"<Role {self.Name}>"
-
-# def get_user_role(user_id):
-#     user_role = db.session.query(Roles.Name).join(UserRoles).filter(UserRoles.UserId == user_id).first()
-#     return user_role
-
-def authenticate_user(form):
-    """
-    Handles user login authentication.
-    :param form: The submitted login form.
-    :return: Tuple (success: bool, user: User object or None, message: str)
-    """
-    user = User.query.filter_by(username=form.username.data).first_or_404()
-    if user and check_password_hash(user.password, form.password.data):
-        return True, user, "Login successful."
-    return False, None, "Invalid username or password."
-
-def register_user(form):
-    """
-    Handles the user registration process.
-    :param form: The submitted registration form.
-    :return: Tuple (success: bool, message: str)
-    """
-    if User.query.filter_by(username=form.username.data).first_or_404():
-        return False, "Username already exists."
-    if User.query.filter_by(email=form.email.data).first_or_404():
-        return False, "Email already exists."
-
-    hashed_password = generate_password_hash(form.password.data)
-    new_user = User(
-        full_name=form.full_name.data,
-        username=form.username.data,
-        email=form.email.data,
-        password=hashed_password
-    )
-    db.session.add(new_user)
-    db.session.commit()
-
-    user_role = Roles.query.filter_by(name='User').first_or_404()
-    if user_role:
-        new_user_role = UserRoles(user_id=new_user.id, role_id=user_role.id)
-        db.session.add(new_user_role)
-        db.session.commit()
-    else:
-        return False, "Role 'User' not found in the database. Contact admin."
-
-    return True, "Registration successful. You can now log in."
 
 def getName():
     if current_user.is_authenticated:
@@ -419,10 +380,6 @@ def getName():
     else:
         print("User is not authenticated")
         return 'Guest'
-
-def getPending_Problems(status='Pending'):
-    problems = Problem.query.filter_by(user_id=current_user.id, status=status).all()
-    return [{'description': p.description, 'status': p.status} for p in problems]
 
 def getProblems():
     problems = Problem.query.filter_by(user_id=current_user.id).all()
@@ -641,10 +598,13 @@ def get_user_role(user_id):
     if role_id:
         trainer_role_id = "E1CE5E86-FBEC-48E5-9008-57D3622F9C5B"  
         user_role_id = "97EB8D4B-82F4-4427-B863-B3F0BD84DE32"
+        admin_role_id = "A53244C9-E3F4-4534-A933-8860EE474C39"
         if role_id == trainer_role_id:
             return "Trainer"
         elif role_id == user_role_id:
             return "User"
+        elif role_id == admin_role_id:
+            return "Admin"
         else:
             return "Unknown"
         
@@ -656,7 +616,6 @@ def get_trainerID():
     else:
         return None
     
-
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -729,6 +688,7 @@ def addProblem():
     flash(message, 'success' if success else 'danger')  
     return redirect(url_for('support'))  
 
+#After Registration
 @app.route('/Healthmetrics_Insert', methods=['GET','POST'])  
 def healthMetrics_insert():
     if request.method == 'POST':
@@ -772,6 +732,8 @@ def dashboard():
         return redirect(url_for('trainer_dashboard'))
     elif role == "User":
         return redirect(url_for('user_dashboard'))
+    elif role == "Admin":
+        return redirect(url_for("admin_dashboard"))
     else:
         return "Role not recognized.", 403
 
@@ -793,6 +755,7 @@ def user_dashboard():
     
     return render_template('dashboard.html', metrics=metrics, goals=goals, user_goal=user_goal)
 
+#Viewed in user dashboard
 @app.route('/weight-data', methods=['GET'])
 @login_required
 def get_weight_data():
@@ -859,7 +822,7 @@ def update_goals():
         flash("No goals found", "warning")
         return redirect(url_for('dashboard'))
 
-########################New#####################
+######################## NEW ############################################################################################################################################
 @app.route('/view-meals', methods=['GET'])
 @login_required
 def view_meals():
@@ -1040,10 +1003,8 @@ def assign_workout_plan(user_id):
         return redirect(url_for('trainer_dashboard'))
 
     if request.method == 'POST':
-        # Collect selected workouts for each day
         workout_ids = {day: request.form.getlist(f'workouts_{day}') for day in range(1, 8)}
 
-        # Loop through each day and assign selected workouts
         for day, workouts in workout_ids.items():
             if workouts:
                 date = datetime.now(timezone.utc) + timedelta(days=day - 1)
@@ -1062,9 +1023,8 @@ def assign_workout_plan(user_id):
         flash("Workout plan assigned successfully.", "success")
         return redirect(url_for('trainer_dashboard'))
 
-    workouts = Workout.query.all()  # Fetch all available workouts
+    workouts = Workout.query.all()  
     return render_template('add_workout.html', user=user, workouts=workouts)
-
 
 @app.route('/assign_meal/<user_id>', methods=['GET', 'POST'])
 @login_required
@@ -1120,39 +1080,93 @@ def assign_meal(user_id):
 
     return render_template('add_nutrition.html', user=user)
 
-
 @app.route('/view-goals/<user_id>',  methods=['GET'])
 def view_goals(user_id):
     latest_goal = Goal.query.filter_by(user_id=user_id).order_by(Goal.created_at.desc()).first()
     
     return render_template('T_view_goals.html', goal=latest_goal)
 
-#NOT TESTED
-@app.route('/admin_viewproblems')
-@login_required
-def view_PendingProblems():
-    problems = getPending_Problems()
-    return render_template("all_problems.html", problems=problems)
+#Admin
+@app.route('/admin_dashboard', methods=['GET'])
+def admin_dashboard():
+    users = User.query.all()
+    trainers = Trainer.query.all()
+    problems = Problem.query.filter(Problem.status != 'Solved').all()
+    return render_template('admin_dashboard.html', users=users, trainers=trainers, problems=problems)
 
-@app.route('/edit_problemstatus/<int:problem_id>', methods=['GET', 'POST'])
-@login_required
-def editStatus(problem_id):
-    if request.method == 'POST':
-        new_status = request.form.get('status')
-        success, message = update_problem_status(problem_id, new_status)
-        flash(message, 'success' if success else 'danger')
-        if success:
-            return redirect(url_for('view_PendingProblems'))
+@app.route('/add_trainer', methods=['POST'])
+def add_trainer():
+    try:
+        name = request.form['trainer_name']
+        email = request.form['trainer_email']
+        password = request.form['trainer_password']
+
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=12)
+
+        trainer_user_id = str(uuid4())
+        new_user = User(
+            id=trainer_user_id, 
+            username=name,
+            email=email,
+            password=password,
+            PasswordHash=hashed_password,
+            FullName=name,
+            State=True
+        )
+        db.session.add(new_user)
+        db.session.flush() 
+
+        new_trainer = Trainer(
+            trainer_id=new_user.id,  
+            name=name,
+            email=email
+        )
+        db.session.add(new_trainer)
+
+        db.session.commit()
+        flash('Trainer added successfully', 'success')
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error during trainer addition: {str(e)}")  
+        flash(f'Error: {str(e)}', 'danger')
+
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/assign_trainer', methods=['POST'])
+def assign_trainer():
+    user_id = request.form['user_id']
+    trainer_id = request.form['trainer_id']
+    
+    new_assignment = UserTrainerAssignment(user_id=user_id, trainer_id=trainer_id)
+
+    try:
+        db.session.add(new_assignment)
+        db.session.commit()
+        flash('Trainer assigned to user successfully', 'success')
+    except Exception as e:
+        db.session.rollback()  
+        flash(f'Error: {str(e)}', 'danger')
+        print(f"Error: {str(e)}")  
+
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/update_problem_status/<int:problem_id>', methods=['POST'])
+def update_problem_status(problem_id):
     problem = Problem.query.get_or_404(problem_id)
-    return render_template('edit_problem_status.html', problem=problem)
 
-###################################################################################################################################################
-@app.route('/payment', methods=['GET', 'POST'])
-def payment():
-    if request.method == 'POST':
-        return redirect(url_for('confirmation'))
-    return render_template('payment.html')
+    problem.status = 'Solved'
+    
+    try:
+        db.session.commit()
+        flash('Problem marked as solved successfully', 'success')
+    except Exception as e:
+        db.session.rollback()  
+        flash(f'Error: {str(e)}', 'danger')
 
+    return redirect(url_for('admin_dashboard'))
+
+#########################################################################################################################################################################
 
 @app.route('/classes')
 def classes():
@@ -1180,37 +1194,6 @@ def bmi_calculator():
 @app.route('/gallery')
 def gallery():
     return render_template('gallery.html')
-
-
-# @app.route('/view-meals')
-# def view_meals():
-#     return render_template('view_meals.html')
-
-# @app.route('/edit-meals')
-# def edit_meals():
-#     return render_template('edit_meals.html')
-
-# @app.route('/create-meals')
-# def create_meals():
-#     return render_template('create_meals.html')
-
-
-# @app.route('/view-health-metrics')
-# def view_health_metrics():
-#     return render_template('view_health_metrics.html')
-
-# @app.route('/view-goals')
-# def view_goals():
-#     return render_template('view_goals.html')
-
-# @app.route('/edit-goals')
-# def edit_goals():
-#     return render_template('edit_goals.html')
-
-# @app.route('/goals')
-# def goals():
-#     return render_template('goals.html')
-
 
 @app.route('/blog')
 def blog():

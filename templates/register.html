@@ -74,6 +74,10 @@
                                 {{ form.password(class="form-control") }}
                             </div>
                             <div class="form-group">
+                                {{ form.confirm_password.label(class="form-label") }}
+                                {{ form.confirm_password(class="form-control") }}
+                            </div>
+                            <div class="form-group">
                                 {{ form.submit(class="btn btn-orange btn-block") }}
                             </div>
                         </form>
@@ -103,13 +107,12 @@
     <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script>
-        // Form validation
-        document.getElementById('registerForm').addEventListener('submit', function(event) {
-            var form = event.target;
-            var password = form.password.value;
-            var confirmPassword = form.confirm_password.value;
 
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            var password = document.querySelector('input[name="password"]').value;
+            var confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+    
             if (password !== confirmPassword) {
                 event.preventDefault();
                 alert('Passwords do not match.');
