@@ -1,12 +1,12 @@
-# from extensions import db
-# from flask_login import UserMixin
-# from flask_wtf import FlaskForm
-# from wtforms import StringField, PasswordField, SubmitField, BooleanField
-# from wtforms.validators import InputRequired, Length, ValidationError, Email, EqualTo
-# from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-# from sqlalchemy.orm import relationship
-# from datetime import datetime
-# from uuid import uuid4
+from extensions import db
+from flask_login import UserMixin
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms.validators import InputRequired, Length, ValidationError, Email, EqualTo
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
+from datetime import datetime
+from uuid import uuid4
 
 # class Problem(db.Model):
 #     __tablename__ = 'problems'
