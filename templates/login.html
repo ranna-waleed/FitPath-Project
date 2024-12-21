@@ -78,7 +78,7 @@
                                     {% endfor %}
                                 </div>
                                 {% endif %}
-                                <a href="#" class="password-control" onclick="return show_hide_password(this);"></a>
+                                <a href="{{ url_for('forgot_password') }}" class="text-muted float-right" style="font-size: 0.9rem;">Forgot Password?</a>
                             </div>
                             <div class="form-check">
                                 {{ form.remember_me(class="form-check-input") }}
@@ -87,10 +87,10 @@
                             <div class="form-group">
                                 {{ form.submit(class="btn btn-orange btn-block") }}
                             </div>
-                        </form>
-                        <div class="text-center mt-3">
-                            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
-                        </div>
+                            <div class="text-center mt-3">
+                                <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+                            </div>
+                            
                         <script>
                             function show_hide_password(target) {
                                 var input = document.getElementById('floatingPassword');

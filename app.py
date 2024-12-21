@@ -19,6 +19,12 @@ from datetime import datetime, timedelta, timezone, time
 from collections import defaultdict
 from uuid import uuid4
 
+import requests
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Message
+from flask import current_app, url_for
+from app import mail
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'login'
@@ -400,6 +406,175 @@ def register_user(form):
         return False, "Role 'User' not found in the database. Contact admin."
 
     return True, "Registration successful. You can now log in."
+
+#-----------------------------------------------------------------------------------------------#
+#---------------------------------Forgot Password and Reset Password---------------------------#
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField(validators=[InputRequired(), Email()], render_kw={"placeholder": "Email"})
+    submit = SubmitField("Send Reset Email")
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "New Password"})
+    submit = SubmitField("Reset Password")
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField(
+        "Email",
+        validators=[InputRequired(), Email()],
+        render_kw={"placeholder": "Enter your registered email"}
+    )
+    submit = SubmitField("Send Reset Link")
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField(
+        "New Password",
+        validators=[InputRequired(), Length(min=4, max=20)],
+        render_kw={"placeholder": "Enter your new password"}
+    )
+    confirm_password = PasswordField(
+        "Confirm Password",
+        validators=[InputRequired(), EqualTo("password", message="Passwords must match.")],
+        render_kw={"placeholder": "Confirm your new password"}
+    )
+    submit = SubmitField("Reset Password")
+
+
+
+def generate_reset_token(user):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    return serializer.dumps(user.email, salt='reset-password-salt')
+
+
+def verify_reset_token(token):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(token, salt='reset-password-salt', max_age=3600)  # 1-hour expiration
+    except:
+        return None
+    return User.query.filter_by(email=email).first()
+
+
+
+
+def send_password_reset_email(user):
+    token = generate_reset_token(user)
+    reset_url = url_for('reset_password', token=token, _external=True)
+    msg = Message("Password Reset Request", sender="noreply@example.com", recipients=[user.email])
+    msg.body = f'''To reset your password, visit the following link:
+{reset_url}
+If you did not make this request, please ignore this email.
+'''
+    mail.send(msg)
+
+
+
+#This page collects the user's email address to send a password reset link.
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)  # Function to send the reset email
+        flash("If an account exists for this email, a reset link has been sent.", "info")
+        return redirect(url_for('login'))
+    return render_template('forgot_password.html', form=form)
+
+
+#Once the user clicks the link in their email, they are redirected to a Reset Password page.
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    user = verify_reset_token(token)  # Function to validate the token
+    if not user:
+        flash("The reset link is invalid or expired.", "danger")
+        return redirect(url_for('forgot_password'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data)
+        user.password = hashed_password
+        db.session.commit()
+        flash("Your password has been reset. You can now log in.", "success")
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
+
+
+# PUSH NOTIFICATIONS #
+
+import requests
+
+def send_push_notification(user_id, title, message):
+    headers = {
+        'Authorization': f'Basic {current_app.config["ONESIGNAL_API_KEY"]}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        "app_id": current_app.config["ONESIGNAL_APP_ID"],
+        "include_external_user_ids": [str(user_id)],
+        "headings": {"en": title},
+        "contents": {"en": message}
+    }
+    response = requests.post("https://onesignal.com/api/v1/notifications", json=payload, headers=headers)
+    return response.json()
+
+
+#Example usage implement later in other places 
+# send_push_notification(user.id, "New Message", "You have received a new message.")
+
+
+
+#-------------------------^^--Forgot Password and Reset Password---^^---------------------------------------------------#
+#---------------------------------------------------------------------------------------------------#
+
+
+#-------------------------vv--History Notifications (Notification Center)--vv------------------------------------------------------#
+#---------------------------------------------------------------------------------------------------#
+
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    message = db.Column(db.String(255))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False)
+
+
+
+
+@app.route('/notifications')
+@login_required
+def notifications():
+    notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.timestamp.desc()).all()
+    return render_template('notifications.html', notifications=notifications)
+
+
+@app.route('/notifications/read/<int:notification_id>', methods=['POST'])
+@login_required
+def mark_notification_as_read(notification_id):
+    notification = Notification.query.get_or_404(notification_id)
+    if notification.user_id == current_user.id:
+        notification.is_read = True
+        db.session.commit()
+        flash('Notification marked as read.', 'success')
+    return redirect(url_for('notifications'))
+
+
+# Example usage implement later in other places  
+# new_notification = Notification(user_id=user.id, message="Your password was reset successfully.")
+# db.session.add(new_notification)
+# db.session.commit()
+
+
+#-------------------------^^--History Notifications (Notification Center)--^^----------------------------------------------------#
+#---------------------------------------------------------------------------------------------------#
+
+
+
+
+
+
+
 
 def getName():
     if current_user.is_authenticated:
