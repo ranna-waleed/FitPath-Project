@@ -135,6 +135,7 @@
                         </div>
                         <button type="submit" class="btn btn-custom">Save</button>
                     </form>
+                    
                 </div>
             </div>
         </div>
@@ -150,7 +151,14 @@
         </div>
     </section>
     <!-- Footer Section End -->
-
+    <script>
+        document.getElementById('phone').addEventListener('blur', function() {
+            var phone = this.value;
+            // Remove non-numeric characters
+            this.value = phone.replace(/\D/g, '');
+        });
+    </script>
+        
     <!-- Js Plugins -->
     <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>

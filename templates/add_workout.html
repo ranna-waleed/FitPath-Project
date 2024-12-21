@@ -119,16 +119,13 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-10">
-                    <h4 class="text-center">Workout Plan</h4>
-                    <form action="{{ url_for('workout_plan') }}" method="POST">
+                    <h4 class="text-center">Assign Workout Plan</h4>
+                    <form action="{{ url_for('assign_workout_plan', user_id=user.id) }}" method="POST">
                         <table class="table table-striped text-center">
                             <thead>
                                 <tr>
                                     <th>Day</th>
-                                    <th>Exercise Name</th>
-                                    <th>Type</th>
-                                    <th>Duration</th>
-                                    <th>Description</th>
+                                    <th>Workout(s)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -136,40 +133,44 @@
                                 <tr>
                                     <td>Day {{ day }}</td>
                                     <td>
-                                        <select name="exercise_name_{{ day }}" onchange="setExerciseType(this, {{ day }})" required>
-                                            <option value="Push-ups" data-type="Strength">Push-ups</option>
-                                            <option value="Squats" data-type="Strength">Squats</option>
-                                            <option value="Lunges" data-type="Strength">Lunges</option>
-                                            <option value="Bicep Curls" data-type="Strength">Bicep Curls</option>
-                                            <option value="Tricep Dips" data-type="Strength">Tricep Dips</option>
-                                            <option value="Deadlifts" data-type="Strength">Deadlifts</option>
-                                            <option value="Pull-Ups" data-type="Strength">Pull-Ups</option>
-                                            <option value="Bench Press" data-type="Strength">Bench Press</option>
-                                            <option value="Wall Sit" data-type="Strength">Wall Sit</option>
-                                            <option value="Jogging" data-type="Cardio">Jogging</option>
-                                            <option value="Burpees" data-type="Cardio">Burpees</option>
-                                            <option value="Mountain Climbers" data-type="Cardio">Mountain Climbers</option>
-                                            <option value="High Knees" data-type="Cardio">High Knees</option>
-                                            <option value="Jump Rope" data-type="Cardio">Jump Rope</option>
-                                            <option value="Shadow Boxing" data-type="Cardio">Shadow Boxing</option>
-                                            <option value="Plank" data-type="Core">Plank</option>
-                                            <option value="Russian Twists" data-type="Core">Russian Twists</option>
-                                            <option value="Crunches" data-type="Core">Crunches</option>
-                                            <option value="Side Plank" data-type="Core">Side Plank</option>
-                                            <option value="Leg Raises" data-type="Core">Leg Raises</option>
-                                        </select>
+                                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#workoutModal{{ day }}">Select Workouts</button>
+                                        <!-- Modal for each day -->
+                                        <div class="modal fade" id="workoutModal{{ day }}" tabindex="-1" role="dialog" aria-labelledby="workoutModalLabel{{ day }}" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="workoutModalLabel{{ day }}">Select Workouts for Day {{ day }}</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <!-- Checkboxes for workouts -->
+                                                        {% for workout in workouts %}
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="workouts_{{ day }}[]" value="{{ workout.id }}" id="workout{{ workout.id }}">
+                                                            <label class="form-check-label" for="workout{{ workout.id }}">
+                                                                {{ workout.name }}
+                                                            </label>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td><input type="text" name="type_{{ day }}" id="type_{{ day }}" readonly required></td>
-                                    <td><input type="text" name="duration_{{ day }}" required></td>
-                                    <td><input type="text" name="description_{{ day }}" required></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-custom">Save Workout Plan</button>
+                            <button type="submit" class="btn btn-custom">Assign 7-Day Workout Plan</button>
                         </div>
                     </form>
+                    
                 </div>
             </div>
         </div>
@@ -191,12 +192,5 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script>
-        function setExerciseType(select, day) {
-            var selectedOption = select.options[select.selectedIndex];
-            var exerciseType = selectedOption.getAttribute('data-type');
-            document.getElementById('type_' + day).value = exerciseType;
-        }
-    </script>
 </body>
 </html>

@@ -45,9 +45,9 @@
                 <li><a href="{{ url_for('support') }}">Support</a></li>
                 <li><a href="#">Profile</a>
                     <ul class="dropdown">
-                        <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                        <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                        <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                        <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                        <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                        <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                     </ul>
                 </li>
             </ul>
@@ -73,9 +73,9 @@
                             <li><a href="{{ url_for('logout') }}" class="logout-btn">Logout</a></li>
                             <li><a href="#">Profile</a>
                                 <ul class="dropdown">
-                                    <li><a href="{{ url_for('personal_info') }}">Personal Information</a></li>
-                                    <li><a href="{{ url_for('fitness_goals') }}">Fitness Goals</a></li>
-                                    <li><a href="{{ url_for('healthmetrics') }}">Health Metrics</a></li>
+                                    <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
+                                    <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
+                                    <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -124,12 +124,12 @@
                         <tbody>
                             {% for user in assigned_users %}
                             <tr>
-                                <td>{{ user.name }}</td>
+                                <td>{{ user.username }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>
-                                    <a href="{{ url_for('nutrition_plan', user_id=user.id) }}" class="btn btn-custom">Nutrition Plan</a>
-                                    <a href="{{ url_for('workout', user_id=user.id) }}" class="btn btn-custom">Workout</a>
-                                    <a href="{{ url_for('goals', user_id=user.id) }}" class="btn btn-custom">Goals</a>
+                                    <a href="{{ url_for('assign_meal', user_id=user.id) }}" class="btn btn-custom">Add Nutrition Plan</a>
+                                    <a href="{{ url_for('assign_workout_plan', user_id=user.id) }}" class="btn btn-custom">Add Workout</a>
+                                    <a href="{{ url_for('view_goals', user_id=user.id) }}" class="btn btn-custom">View Your Goal</a>
                                 </td>
                             </tr>
                             {% endfor %}

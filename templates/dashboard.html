@@ -42,6 +42,17 @@
 <body>
 </head>
 <body>
+    <!-- Display Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+  <div class="alert alert-success">
+    {% for category, message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endwith %}
+
       <!-- Offcanvas Menu Section Begin -->
       <div class="offcanvas-menu-overlay"></div>
       <div class="offcanvas-menu-wrapper">
@@ -153,6 +164,8 @@
                     <a href="{{ url_for('edit_health_metrics') }}" class="btn btn-custom">Update Health Metrics</a>
                     <a href="{{ url_for('update_goals') }}" class="btn btn-custom">Update Goals</a>
                     <a href="{{ url_for('todays_workout') }}" class="btn btn-custom">Your Workout</a>
+                    <a href="{{ url_for('todays_nutrition') }}" class="btn btn-custom">Your Nutrition Plan</a>
+
 
                 </div>
             </div>
@@ -258,4 +271,5 @@
     </script>
     
 </body>
+
 </html>

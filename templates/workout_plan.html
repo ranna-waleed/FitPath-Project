@@ -35,6 +35,39 @@
             height: 100px; /* Decreased graph height */
         }
     </style>
+    <style>
+        /* Clean all-white table with borders */
+        .table {
+            font-size: 16px; /* Comfortable font size */
+            text-align: left;
+            border-collapse: collapse; /* Removes double borders */
+            width: 100%;
+            background-color: white; /* Ensures white background */
+        }
+    
+        .table th, .table td {
+            border: 1px solid #dee2e6; /* Light grey borders */
+            padding: 10px; /* Extra padding for readability */
+            text-align: left; /* Align text to the left */
+        }
+    
+        .table th {
+            font-weight: 700; /* Bold header text */
+        }
+    
+        /* Strong border at the end of every row */
+        .table tbody tr {
+            border-bottom: 2px solid #dee2e6; /* Thicker bottom border */
+        }
+    
+        /* Hover effect for better UX */
+        .table tbody tr:hover {
+            background-color: #f9f9f9; /* Subtle hover effect */
+        }
+        /* Highlight the Day column */
+
+    </style>
+    
 </head>
 <body>
     <!-- Offcanvas Menu Section Begin -->
@@ -131,9 +164,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for date, workouts in grouped_workouts.items() %}
+                            {% for day, workouts in enumerated_workouts %}
                             <tr>
-                                <td rowspan="{{ workouts|length }}">Day {{ loop.index }}</td>
+                                <td rowspan="{{ workouts|length }}">Day {{day}}</td>
                                 <td>{{ workouts[0].workout.name }}</td>
                                 <td>{{ workouts[0].workout.type }}</td>
                                 <td>{{ workouts[0].workout.duration }}</td>

@@ -16,6 +16,8 @@ from Backend.Admin import *
 from Backend.Login import *
 from models import *
 from datetime import datetime, timedelta, timezone, time
+from collections import defaultdict
+from uuid import uuid4
 
 app = Flask(__name__)
 
@@ -44,6 +46,9 @@ def load_user(user_id):
     else:
         return None 
 
+with app.app_context():
+    db.create_all()
+    
 @app.errorhandler(404)
 def page_not_found(e):
     url = request.url
@@ -71,6 +76,8 @@ def page_not_found(e):
 @app.context_processor
 def inject_name():
     return {'name': getName()}
+
+# UserRoles Model
 
 class DatabaseHelper:
     def __init__(self, db_session):
@@ -126,6 +133,9 @@ class User(db.Model, UserMixin):
     meals = db.relationship('Meal', back_populates='user') 
     assigned_workouts = db.relationship('WorkoutAssignment', back_populates='user')
     workout_plan = db.relationship('WorkoutPlan', back_populates='user')
+    meal_assignments = db.relationship('MealAssignment', back_populates='user')
+    roles = db.relationship('Roles', secondary='UserRoles', back_populates='users', lazy='dynamic')
+    trainer_assignment = db.relationship("UserTrainerAssignment", back_populates="user")
 
 class Trainer(db.Model):
     __tablename__ = 'Trainers'
@@ -135,17 +145,21 @@ class Trainer(db.Model):
     name = db.Column('Name', db.String(256), nullable=False)
     email = db.Column('Email', db.String(256), nullable=False)
 
-    # Relationship with Meals
     meals = db.relationship('Meal', back_populates='trainer')
+    users = relationship("UserTrainerAssignment", back_populates="trainer")
 
     def __repr__(self):
         return f"<Trainer(id={self.id}, name={self.name}, email={self.email})>"
-    
-class Roles(db.Model):
-    __tablename__ = 'UserRoles'
-    UserId = db.Column(db.String(450),  primary_key=True, nullable=False)
-    RoleId = db.Column(db.String(450),  primary_key=True, nullable=False)
-    
+
+class UserTrainerAssignment(db.Model):
+    __tablename__ = 'UserTrainerAssignment'
+
+    user_id = db.Column('UserID',db.String(450), ForeignKey('Users.id'), primary_key=True)
+    trainer_id = db.Column('TrainerID', db.Integer, ForeignKey('Trainers.ID'), primary_key=True)
+
+    user = relationship("User", back_populates="trainer_assignment")
+    trainer = relationship("Trainer", back_populates="users")
+        
 class RegisterForm(FlaskForm):
     username = StringField(
         validators=[InputRequired(), Length(min=4, max=20)],
@@ -180,11 +194,6 @@ class LoginForm(FlaskForm):
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"id": "floatingPassword"})
     remember_me = BooleanField('Remember Me')
     submit = SubmitField("Login")
-
-class UserRole(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
 
 class HealthMetrics(db.Model):
     __tablename__ = 'health_metrics'
@@ -266,9 +275,26 @@ class Meal(db.Model):
     # Relationships
     user = db.relationship('User', back_populates='meals')
     trainer = db.relationship("Trainer", back_populates="meals")
+    meal_assignments = db.relationship('MealAssignment', back_populates='meal')
+
 
     def __repr__(self):
         return f"<Meal(id={self.id}, meal_name={self.meal_name}, user_id={self.user_id})>"
+
+class MealAssignment(db.Model):
+    __tablename__ = 'meal_assignments'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    meal_id = Column(Integer, ForeignKey('Meals.Id'), nullable=False)
+    user_id = Column(String(450), ForeignKey('Users.id'), nullable=False)
+    date = Column(DateTime, nullable=False)  
+    calories = Column(Integer)  
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    meal = relationship('Meal', back_populates='meal_assignments')
+    user = relationship('User', back_populates='meal_assignments')
 
 class Workout(db.Model):
     __tablename__ = 'workouts'
@@ -309,34 +335,29 @@ class WorkoutAssignment(db.Model):
     workout = db.relationship('Workout', back_populates='assigned_workouts')
     user = db.relationship('User', back_populates='assigned_workouts') 
     
-def getCurrentrole():
-    user_id = current_user.id
-    with engine.connect() as connection:
-        result = connection.execute(
-            text("SELECT RoleId FROM UserRoles WHERE UserId = :user_id"), {"user_id": user_id}
-        )
-        role_id = result.scalar()  
-
-        if role_id is None:
-            return []  
-
-        claims_result = connection.execute(
-            text("SELECT ClaimValue FROM RoleClaims WHERE RoleId = :role_id"), {"role_id": role_id}
-        )
-
-        claims = claims_result.fetchall()
-        claims_list = [claim[0] for claim in claims]
-
-    return claims_list
-
-def authorize(module, action):
-    claims_list = getCurrentrole()  
-
-    for claim in claims_list:
-        if f"{module}.{action}" in claim:
-            return True 
+class UserRoles(db.Model):
+    __tablename__ = 'UserRoles'
     
-    return False  
+    UserId = db.Column(db.String(450), db.ForeignKey('Users.id'), primary_key=True, nullable=False)
+    RoleId = db.Column(db.String(450), db.ForeignKey('Roles.id'), primary_key=True, nullable=False)
+    
+    user = db.relationship('User', backref=db.backref('user_roles', lazy='dynamic'))
+    role = db.relationship('Roles', backref=db.backref('role_users', lazy='dynamic'))
+
+# Roles Model
+class Roles(db.Model):
+    __tablename__ = 'Roles'
+    
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
+    Name = db.Column(db.String(50), nullable=True, unique=True)
+    
+    users = db.relationship('User', secondary='UserRoles', back_populates='roles', lazy='dynamic')
+    def __repr__(self):
+        return f"<Role {self.Name}>"
+
+# def get_user_role(user_id):
+#     user_role = db.session.query(Roles.Name).join(UserRoles).filter(UserRoles.UserId == user_id).first()
+#     return user_role
 
 def authenticate_user(form):
     """
@@ -372,7 +393,7 @@ def register_user(form):
 
     user_role = Roles.query.filter_by(name='User').first_or_404()
     if user_role:
-        new_user_role = UserRole(user_id=new_user.id, role_id=user_role.id)
+        new_user_role = UserRoles(user_id=new_user.id, role_id=user_role.id)
         db.session.add(new_user_role)
         db.session.commit()
     else:
@@ -577,13 +598,68 @@ def getFullWorkoutPlan():
     
     return all_workouts
 
+def getTodaysMeals():
+    user_id = current_user.id
+    today = datetime.now(timezone.utc).date()
+
+    todays_meals = db.session.query(MealAssignment).join(
+        Meal, MealAssignment.meal_id == Meal.id
+    ).filter(
+        MealAssignment.user_id == user_id,
+        MealAssignment.date == today
+    ).all()
+
+    return todays_meals
+
+def getWeeklyMeals():
+    user_id = current_user.id
+    today = datetime.now(timezone.utc).date()
+    
+    days_since_saturday = (today.weekday() - 5) % 7  
+    start_of_week = today - timedelta(days=days_since_saturday)
+    end_of_week = start_of_week + timedelta(days=6)
+
+    weekly_meals = db.session.query(MealAssignment).join(
+        Meal, MealAssignment.meal_id == Meal.id
+    ).filter(
+        MealAssignment.user_id == user_id,
+        MealAssignment.date >= start_of_week,
+        MealAssignment.date <= end_of_week
+    ).order_by(MealAssignment.date).all()
+
+    return weekly_meals
+
+def get_role_id(user_id):
+    role = UserRoles.query.filter_by(UserId=user_id).first()
+    if role:
+        return role.RoleId
+    return None
+
+def get_user_role(user_id):
+    role_id = get_role_id(user_id)  
+
+    if role_id:
+        trainer_role_id = "E1CE5E86-FBEC-48E5-9008-57D3622F9C5B"  
+        user_role_id = "97EB8D4B-82F4-4427-B863-B3F0BD84DE32"
+        if role_id == trainer_role_id:
+            return "Trainer"
+        elif role_id == user_role_id:
+            return "User"
+        else:
+            return "Unknown"
+        
+def get_trainerID():
+    trainer = Trainer.query.filter(Trainer.trainer_id == current_user.id).first()
+
+    if trainer:
+        return trainer.id  
+    else:
+        return None
+    
+
 @app.route('/')
 def home():
     return render_template('index.html')
-
-@app.context_processor
-def inject_authorize():
-    return dict(authorize=authorize)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -687,22 +763,32 @@ def userGoal_insert():
             return message, 400
     return render_template('goals.html')
 
-@app.route('/dashboard', methods=['GET'])
+@app.route('/dashboard')
 @login_required
 def dashboard():
+    role = get_user_role(current_user.id)
+    
+    if role == "Trainer":
+        return redirect(url_for('trainer_dashboard'))
+    elif role == "User":
+        return redirect(url_for('user_dashboard'))
+    else:
+        return "Role not recognized.", 403
+
+@app.route('/user_dashboard')
+@login_required
+def user_dashboard():
     user_id = current_user.id
     
-    # Get the user's latest goal
     user_goal_data = getUserGoal()
+    
     if user_goal_data:
         user_goal = f"{user_goal_data.get('goal', 'Unknown Goal')} before {user_goal_data.get('target_date', 'No target date')}"
     else:
         user_goal = "No goals set"
     
-    # Get the user's latest health metrics
     metrics = getUserMetrics()  
     
-    # Fetch all goals for the user 
     goals = Goal.query.filter_by(user_id=user_id)
     
     return render_template('dashboard.html', metrics=metrics, goals=goals, user_goal=user_goal)
@@ -829,7 +915,7 @@ def profile():
     if request.method == 'POST':
         return redirect(url_for('profile'))
     
-    return render_template('profile.html')
+    return render_template('dashboard.html')
 
 @app.route('/goalProfile')
 @login_required
@@ -857,7 +943,10 @@ def editUserInfo():
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
-        phone = request.form.get('phone')
+        phone = request.form['phone'].strip()
+
+        # Debugging the phone number before saving
+        print(f"Phone number received: {phone}")
 
         if not name or not email or not phone:
             flash("Please fill out all required fields", "danger")
@@ -867,37 +956,176 @@ def editUserInfo():
             userinfo.name = name
             userinfo.email = email
             userinfo.phone = phone
+
+            # Debugging before commit
+            print(f"Phone number before commit: {userinfo.phone}")
+
             db.session.commit()
+            db.session.flush() 
 
             flash("Profile updated successfully!", "success")
             return redirect(url_for('dashboard'))
         except Exception as e:
             flash(f"An error occurred while updating Profile: {e}", "danger")
-            return redirect(url_for('editUserInfo'))
+            return redirect(url_for('edit_infoProfile'))
 
     return render_template(
         'personal_info.html',
-        name=userinfo.weight,
-        email=userinfo.height,
-        phone=userinfo.bmi
+        name=userinfo.name,  # Fix: use userinfo.name instead of weight
+        email=userinfo.email,  # Fix: use userinfo.email instead of height
+        phone=userinfo.phone
     )
 
 #Workout
 @app.route('/todays-workout')
+@login_required
 def todays_workout():
     todays_workouts = getTodaysWorkout()
 
     return render_template('todays_workout.html', workouts=todays_workouts)
 
 @app.route('/full-workout')
+@login_required
 def workout_plan():    
     all_workouts = getFullWorkoutPlan()
+    grouped_workouts = defaultdict(list)
     
     for workout in all_workouts:
-        print(workout.workout.name, workout.date)
-
-    return render_template('workout_plan.html', workouts=all_workouts)
+        grouped_workouts[workout.date].append(workout)
     
+    enumerated_workouts = list(enumerate(grouped_workouts.values(), start=1))
+
+
+    return render_template('workout_plan.html', enumerated_workouts=enumerated_workouts)
+
+#Nutrition
+@app.route('/todays-nutrition')
+@login_required
+def todays_nutrition():
+    todays_meals = getTodaysMeals()
+    return render_template('nutrition.html', meals=todays_meals)
+
+@app.route('/weekly-nutrition')
+@login_required
+def weekly_nutrition():
+    weekly_meals = getWeeklyMeals()
+    grouped_meals= defaultdict(list)
+    
+    for meal in weekly_meals:
+        grouped_meals[meal.date].append(meal)
+        
+    enumerated_meals = list(enumerate(grouped_meals.values(), start=1))
+
+    return render_template('nutrition_plan.html', enumerated_meals=enumerated_meals)
+
+#Trainer
+@app.route('/trainer_dashboard', methods=['GET'])
+@login_required
+def trainer_dashboard():
+    trainer = get_trainerID()
+    
+    assigned_users = User.query.join(UserTrainerAssignment).filter(UserTrainerAssignment.trainer_id == trainer).all()
+    print("Assigned users:")
+    for user in assigned_users:
+        print(f"Username: {user.username}, Email: {user.email}")    
+
+    return render_template('trainer_dashboard.html', assigned_users=assigned_users)
+
+@app.route('/assign_workout_plan/<user_id>', methods=['GET', 'POST'])
+@login_required
+def assign_workout_plan(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        flash("User not found", "danger")
+        return redirect(url_for('trainer_dashboard'))
+
+    if request.method == 'POST':
+        # Collect selected workouts for each day
+        workout_ids = {day: request.form.getlist(f'workouts_{day}') for day in range(1, 8)}
+
+        # Loop through each day and assign selected workouts
+        for day, workouts in workout_ids.items():
+            if workouts:
+                date = datetime.now(timezone.utc) + timedelta(days=day - 1)
+                for workout_id in workouts:
+                    workout = Workout.query.get(workout_id)
+                    if workout:
+                        assigned_workout = WorkoutAssignment(
+                            workout_id=workout.id,
+                            user_id=user.id,
+                            date=date,
+                            completed=False
+                        )
+                        db.session.add(assigned_workout)
+
+        db.session.commit()
+        flash("Workout plan assigned successfully.", "success")
+        return redirect(url_for('trainer_dashboard'))
+
+    workouts = Workout.query.all()  # Fetch all available workouts
+    return render_template('add_workout.html', user=user, workouts=workouts)
+
+
+@app.route('/assign_meal/<user_id>', methods=['GET', 'POST'])
+@login_required
+def assign_meal(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        flash("User not found", "danger")
+        return redirect(url_for('trainer_dashboard'))
+
+    if request.method == 'POST':
+        for day in range(1, 8):
+            breakfast = request.form.get(f'meal_name_breakfast_{day}')
+            lunch = request.form.get(f'meal_name_lunch_{day}')
+            dinner = request.form.get(f'meal_name_dinner_{day}')
+            
+            breakfast_meal = Meal.query.filter_by(meal_type=breakfast).first() if breakfast else None
+            lunch_meal = Meal.query.filter_by(meal_type=lunch).first() if lunch else None
+            dinner_meal = Meal.query.filter_by(meal_type=dinner).first() if dinner else None
+
+            if breakfast_meal:
+                meal_assignment = MealAssignment(
+                    NutritionPlanId=None,  
+                    AssignedDate=datetime.now(timezone.utc),
+                    MealId=breakfast_meal.id,
+                    UserId=user.id,
+                    MealType="Breakfast",
+                )
+                db.session.add(meal_assignment)
+
+            if lunch_meal:
+                meal_assignment = MealAssignment(
+                    NutritionPlanId=None,
+                    AssignedDate=datetime.now(timezone.utc),
+                    MealId=lunch_meal.id,
+                    UserId=user.id,
+                    MealType="Lunch",
+                )
+                db.session.add(meal_assignment)
+
+            if dinner_meal:
+                meal_assignment = MealAssignment(
+                    NutritionPlanId=None,
+                    AssignedDate=datetime.now(timezone.utc),
+                    MealId=dinner_meal.id,
+                    UserId=user.id,
+                    MealType="Dinner",
+                )
+                db.session.add(meal_assignment)
+
+        db.session.commit()
+        flash(f"Meals assigned to {user.FullName}.", "success")
+        return redirect(url_for('trainer_dashboard'))
+
+    return render_template('add_nutrition.html', user=user)
+
+
+@app.route('/view-goals/<user_id>',  methods=['GET'])
+def view_goals(user_id):
+    latest_goal = Goal.query.filter_by(user_id=user_id).order_by(Goal.created_at.desc()).first()
+    
+    return render_template('T_view_goals.html', goal=latest_goal)
 
 #NOT TESTED
 @app.route('/admin_viewproblems')
