@@ -52,18 +52,18 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h4>Log New Health Metrics</h4>
-                    <form id="logMetricsForm">
+                    <form id="logMetricsForm" method="POST" action="{{ url_for('healthMetrics_insert') }}">
                         <div class="form-group">
                             <label for="weight">Weight (kg):</label>
-                            <input type="text" id="weight" name="weight" class="form-control" oninput="validatePositiveFloat(this)">
+                            <input type="text" id="weight" name="weight" class="form-control" oninput="validatePositiveFloat(this, 'weight')">
                         </div>
                         <div class="form-group">
-                            <label for="height">Height:</label>
-                            <input type="text" id="height" name="height" class="form-control" oninput="validatePositiveFloat(this)">
+                            <label for="height">Height (cm):</label>
+                            <input type="text" id="height" name="height" class="form-control" oninput="validatePositiveFloat(this, 'height')">
                         </div>
                         <div class="form-group">
                             <label for="bmi">BMI:</label>
-                            <input type="text" id="bmi" name="bmi" class="form-control" oninput="validatePositiveFloat(this)">
+                            <input type="text" id="bmi" name="bmi" class="form-control" oninput="validatePositiveFloat(this, 'bmi')">
                         </div>
                         <div class="form-group">
                             <label for="notes">Notes:</label>
@@ -71,6 +71,7 @@
                         </div>
                         <button type="submit" class="btn btn-custom save-button">Save</button>
                     </form>
+                    
                 </div>
             </div>
         </div>
@@ -93,10 +94,33 @@
     <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
-        function validatePositiveFloat(input) {
-            input.value = input.value.replace(/[^0-9.]/g, ''); // Allow only numbers and dots
-            if (input.value !== '' && parseFloat(input.value) <= 0) {
-                input.value = ''; // Prevent non-positive numbers
+        // Function to validate positive numbers with reasonable ranges for weight, height, and BMI
+        function validatePositiveFloat(input, field) {
+            let value = input.value;
+    
+            // Remove any non-numeric characters (except decimal point)
+            value = value.replace(/[^\d.]/g, '');
+    
+            // Validate that the value is a positive number
+            if (isNaN(value) || value <= 0) {
+                input.setCustomValidity('Please enter a positive number.');
+            } else {
+                input.setCustomValidity('');
+            }
+    
+            // Set additional validations based on the field
+            if (field === 'weight') {
+                if (value < 10 || value > 500) {  // Reasonable range for weight
+                    input.setCustomValidity('Please enter a weight between 10 kg and 500 kg.');
+                }
+            } else if (field === 'height') {
+                if (value < 50 || value > 300) {  // Reasonable range for height in cm
+                    input.setCustomValidity('Please enter a height between 50 cm and 300 cm.');
+                }
+            } else if (field === 'bmi') {
+                if (value < 10 || value > 50) {  // Reasonable range for BMI
+                    input.setCustomValidity('Please enter a BMI between 10 and 50.');
+                }
             }
         }
     </script>

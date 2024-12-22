@@ -101,7 +101,7 @@
                     
                     <!-- Support Tickets Table -->
                     <div class="blog-item mt-5">
-                           <h4 class="mb-4" style="color: white;">Your Support Requests</h4>
+                        <h4 class="mb-4" style="color: white;">Your Support Requests</h4>
 
                             <div class="table-responsive">
                                 <table class="table table-striped">
@@ -116,7 +116,7 @@
                                         {% for problem in problems %}
                                         <tr>
                                             <td>{{ problem.id }}</td>
-                                            <td>{{ problem.description[:50] }}...</td>
+                                            <td>{{ problem.description[:50] }}</td>
                                             <td>
                                                 <span class="badge 
                                                     {% if problem.status == 'Open' %}badge-danger
@@ -124,10 +124,6 @@
                                                     {% else %}badge-success{% endif %}">
                                                     {{ problem.status }}
                                                 </span>
-                                            </td>
-                                            <td>{{ problem.created_at }}</td>
-                                            <td>
-                                                <a href="/view_ticket/{{ problem.id }}" class="btn btn-sm btn-info">View</a>
                                             </td>
                                         </tr>
                                         {% endfor %}

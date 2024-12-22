@@ -75,7 +75,13 @@
                         </div>
                         <div class="form-group">
                             <label for="target_date">Target Date:</label>
-                            <input type="date" id="target_date" name="target_date" class="form-control" value="{{ target_date }}"  min="<?php echo date('Y-m-d'); ?>">
+                            <input 
+                                type="date" 
+                                id="target_date" 
+                                name="target_date" 
+                                class="form-control" 
+                                required>
+                            <small class="form-text text-muted">Select a date that is in the future.</small>
                         </div>
                         <div class="form-group">
                             <label for="notes">Notes:</label>
@@ -104,5 +110,17 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.slicknav.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get today's date in the format yyyy-mm-dd
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1); // Set to tomorrow
+            const minDate = tomorrow.toISOString().split('T')[0]; // Format as yyyy-mm-dd
+    
+            // Set the min attribute of the target_date input
+            document.getElementById('target_date').setAttribute('min', minDate);
+        });
+    </script>
 </body>
 </html>
