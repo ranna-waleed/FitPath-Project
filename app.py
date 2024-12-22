@@ -78,6 +78,10 @@ def page_not_found(e):
 def inject_name():
     return {'name': getName()}
 
+@app.context_processor
+def inject_authorize():
+    return dict(authorize=authorize)
+
 class DatabaseHelper:
     def __init__(self, db_session):
         self.db_session = db_session
@@ -188,12 +192,12 @@ class RegisterForm(FlaskForm):
     submit = SubmitField("Register")
     
     def validate_username(self, username):
-        existing_user_username = User.query.filter_by(username=username.data).first_or_404()
+        existing_user_username = User.query.filter_by(username=username.data).first()
         if existing_user_username:
             raise ValidationError("That username already exists. Please choose a different one.")
     
     def validate_email(self, email):
-        existing_user_email = User.query.filter_by(email=email.data).first_or_404()
+        existing_user_email = User.query.filter_by(email=email.data).first()
         if existing_user_email:
             raise ValidationError("That email is already registered. Please choose a different one.")
 
@@ -361,6 +365,35 @@ class Roles(db.Model):
     users = db.relationship('User', secondary='UserRoles', back_populates='roles', lazy='dynamic')
     def __repr__(self):
         return f"<Role {self.Name}>"
+
+def getCurrentrole():
+    user_id = current_user.id
+    with engine.connect() as connection:
+        result = connection.execute(
+            text("SELECT RoleId FROM UserRoles WHERE UserId = :user_id"), {"user_id": user_id}
+        )
+        role_id = result.scalar()  
+
+        if role_id is None:
+            return []  
+
+        claims_result = connection.execute(
+            text("SELECT ClaimValue FROM RoleClaims WHERE RoleId = :role_id"), {"role_id": role_id}
+        )
+
+        claims = claims_result.fetchall()
+        claims_list = [claim[0] for claim in claims]
+
+    return claims_list
+
+def authorize(module, action):
+    claims_list = getCurrentrole()  
+
+    for claim in claims_list:
+        if f"{module}.{action}" in claim:
+            return True 
+    
+    return False  
 
 def getName():
     if current_user.is_authenticated:
@@ -620,6 +653,33 @@ def get_trainerID():
 def home():
     return render_template('index.html')
 
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8') 
+        new_user = User(
+            id=str(uuid.uuid4()),  
+            username=form.username.data,
+            email=form.email.data,  
+            PasswordHash=hashed_password,
+            password=form.password.data,
+            FullName=form.full_name.data,  
+        )
+        db.session.add(new_user)
+        
+        role_id = "97EB8D4B-82F4-4427-B863-B3F0BD84DE32"  
+        user_role = UserRoles(UserId=new_user.id, RoleId=role_id)
+        db.session.add(user_role)
+        
+        db.session.commit()
+        print("User registered and added to database.")
+        return redirect(url_for('healthMetrics_insert'))
+    else:
+        print("Form validation failed.")
+        print(form.errors)  
+    return render_template("register.html", form=form)
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -647,28 +707,6 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-@app.route("/register", methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8') 
-        new_user = User(
-            id=str(uuid.uuid4()),  
-            username=form.username.data,
-            email=form.email.data,  
-            PasswordHash=hashed_password,
-            password=form.password.data,
-            FullName=form.full_name.data,  
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        print("User registered and added to database.")
-        return redirect(url_for('healthMetrics_insert'))
-    else:
-        print("Form validation failed.")
-        print(form.errors)  
-    return render_template("register.html", form=form)
-
 @app.route('/about-us')
 def about_us():
     return render_template('about-us.html')
@@ -689,7 +727,7 @@ def addProblem():
     return redirect(url_for('support'))  
 
 #After Registration
-@app.route('/Healthmetrics_Insert', methods=['GET','POST'])  
+@app.route('/Healthmetrics_Insert', methods=['GET', 'POST'])  
 def healthMetrics_insert():
     if request.method == 'POST':
         user_id = current_user.id
@@ -698,10 +736,14 @@ def healthMetrics_insert():
         height = float(request.form.get('height'))
         notes = request.form.get('notes', '')
 
+        print(f"Received health metrics: bmi={bmi}, weight={weight}, height={height}, notes={notes}")
+
         success, message = addHmetrics(user_id, bmi, weight, height, notes)
         if success:
+            print("Health metrics successfully inserted. Redirecting to goal insert.")
             return redirect(url_for('userGoal_insert'))
         else:
+            print(f"Error: {message}")
             return message, 400
 
     return render_template('healthmetrics.html')
@@ -715,11 +757,15 @@ def userGoal_insert():
         exercise_frequency = request.form.get('exercise_frequency')
         target_date = request.form.get("target_date")
         notes = request.form.get('notes', '')
-    
+
+        print(f"Received goal data: goal={goal}, activity_level={activity_level}, exercise_frequency={exercise_frequency}, target_date={target_date}, notes={notes}")
+
         success, message = addGoal(userId, goal, activity_level, exercise_frequency, target_date, notes)
         if success:
+            print("Goal successfully inserted. Redirecting to login.")
             return redirect(url_for('login'))  
         else:
+            print(f"Error: {message}")
             return message, 400
     return render_template('goals.html')
 
@@ -908,19 +954,17 @@ def editUserInfo():
         email = request.form.get('email')
         phone = request.form['phone'].strip()
 
-        # Debugging the phone number before saving
         print(f"Phone number received: {phone}")
 
         if not name or not email or not phone:
             flash("Please fill out all required fields", "danger")
-            return redirect(url_for('edit_infoProfile'))
+            return redirect(url_for('editUserInfo'))
 
         try:
             userinfo.name = name
             userinfo.email = email
             userinfo.phone = phone
 
-            # Debugging before commit
             print(f"Phone number before commit: {userinfo.phone}")
 
             db.session.commit()
@@ -930,15 +974,14 @@ def editUserInfo():
             return redirect(url_for('dashboard'))
         except Exception as e:
             flash(f"An error occurred while updating Profile: {e}", "danger")
-            return redirect(url_for('edit_infoProfile'))
+            return redirect(url_for('editUserInfo'))
 
     return render_template(
         'personal_info.html',
-        name=userinfo.name,  # Fix: use userinfo.name instead of weight
-        email=userinfo.email,  # Fix: use userinfo.email instead of height
+        name=userinfo.name,  
+        email=userinfo.email,  
         phone=userinfo.phone
     )
-
 #Workout
 @app.route('/todays-workout')
 @login_required
@@ -1003,24 +1046,49 @@ def assign_workout_plan(user_id):
         return redirect(url_for('trainer_dashboard'))
 
     if request.method == 'POST':
-        workout_ids = {day: request.form.getlist(f'workouts_{day}') for day in range(1, 8)}
+        try:
+            app.logger.debug(f"Form data received: {request.form}")
+            workout_ids = {day: request.form.getlist(f'workouts_{day}[]') for day in range(1, 8)}
+            app.logger.debug(f"Workout IDs received: {workout_ids}")  
 
-        for day, workouts in workout_ids.items():
-            if workouts:
-                date = datetime.now(timezone.utc) + timedelta(days=day - 1)
-                for workout_id in workouts:
-                    workout = Workout.query.get(workout_id)
-                    if workout:
-                        assigned_workout = WorkoutAssignment(
+            if not any(workout_ids.values()):
+                app.logger.warning("No workouts selected.")  
+
+            for day, workouts in workout_ids.items():
+                if workouts:  
+                    date = datetime.now(timezone.utc) + timedelta(days=day - 1)
+                    app.logger.debug(f"Assigning workouts for Day {day}, Date: {date}")  
+
+                    for workout_id in workouts:
+                        app.logger.debug(f"Processing Workout ID: {workout_id}")  
+                        workout = Workout.query.get(workout_id)
+                        if not workout:
+                            flash(f"Workout ID {workout_id} not found.", "danger")
+                            app.logger.error(f"Workout ID {workout_id} not found.")  
+                            continue
+
+                        app.logger.debug(f"Workout found: {workout.name} (ID: {workout.id})")
+
+                        workout_assignment = WorkoutAssignment(
                             workout_id=workout.id,
                             user_id=user.id,
                             date=date,
-                            completed=False
+                            completed=False  
                         )
-                        db.session.add(assigned_workout)
 
-        db.session.commit()
-        flash("Workout plan assigned successfully.", "success")
+                        app.logger.debug(f"Adding workout assignment to session: {workout_assignment}")
+                        db.session.add(workout_assignment)
+
+            app.logger.debug("Committing session to the database...")  
+            db.session.commit()
+            flash("Workout plan assigned successfully.", "success")
+            app.logger.info("Workout plan committed successfully.")  
+
+        except Exception as e:
+            db.session.rollback() 
+            app.logger.error(f"Error assigning workouts: {str(e)}")
+            flash(f"An error occurred: {str(e)}", "danger")
+
         return redirect(url_for('trainer_dashboard'))
 
     workouts = Workout.query.all()  
@@ -1035,49 +1103,50 @@ def assign_meal(user_id):
         return redirect(url_for('trainer_dashboard'))
 
     if request.method == 'POST':
-        for day in range(1, 8):
-            breakfast = request.form.get(f'meal_name_breakfast_{day}')
-            lunch = request.form.get(f'meal_name_lunch_{day}')
-            dinner = request.form.get(f'meal_name_dinner_{day}')
-            
-            breakfast_meal = Meal.query.filter_by(meal_type=breakfast).first() if breakfast else None
-            lunch_meal = Meal.query.filter_by(meal_type=lunch).first() if lunch else None
-            dinner_meal = Meal.query.filter_by(meal_type=dinner).first() if dinner else None
+        try:
+            for day in range(1, 8):
+                # Calculate the date for this assignment
+                assigned_date = datetime.now(timezone.utc) + timedelta(days=day - 1)
 
-            if breakfast_meal:
-                meal_assignment = MealAssignment(
-                    NutritionPlanId=None,  
-                    AssignedDate=datetime.now(timezone.utc),
-                    MealId=breakfast_meal.id,
-                    UserId=user.id,
-                    MealType="Breakfast",
-                )
-                db.session.add(meal_assignment)
+                # Fetch meal selections for the day
+                meal_data = {
+                    "Breakfast": request.form.get(f'meal_name_breakfast_{day}'),
+                    "Lunch": request.form.get(f'meal_name_lunch_{day}'),
+                    "Dinner": request.form.get(f'meal_name_dinner_{day}')
+                }
 
-            if lunch_meal:
-                meal_assignment = MealAssignment(
-                    NutritionPlanId=None,
-                    AssignedDate=datetime.now(timezone.utc),
-                    MealId=lunch_meal.id,
-                    UserId=user.id,
-                    MealType="Lunch",
-                )
-                db.session.add(meal_assignment)
+                for meal_type, meal_name in meal_data.items():
+                    if meal_name:
+                        # Query the meal by its name
+                        meal = Meal.query.filter_by(meal_name=meal_name).first()
+                        if not meal:
+                            flash(f"Meal '{meal_name}' not found in database.", "danger")
+                            continue
 
-            if dinner_meal:
-                meal_assignment = MealAssignment(
-                    NutritionPlanId=None,
-                    AssignedDate=datetime.now(timezone.utc),
-                    MealId=dinner_meal.id,
-                    UserId=user.id,
-                    MealType="Dinner",
-                )
-                db.session.add(meal_assignment)
+                        # Get calories from the form
+                        calories = request.form.get(f'calories_{meal_type.lower()}_{day}', 0)
 
-        db.session.commit()
-        flash(f"Meals assigned to {user.FullName}.", "success")
+                        # Create the MealAssignment object
+                        meal_assignment = MealAssignment(
+                            meal_id=meal.id,
+                            user_id=user.id,
+                            date=assigned_date,
+                            calories=calories  # Use the retrieved calories
+                        )
+                        db.session.add(meal_assignment)
+                        app.logger.info(f"Assigned {meal_type}: {meal.meal_name} to User {user.id} on {assigned_date}")
+
+            # Commit all assignments to the database
+            db.session.commit()
+            flash(f"Meals assigned to {user.FullName} successfully.", "success")
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error assigning meals: {str(e)}")
+            flash(f"An error occurred: {str(e)}", "danger")
+
         return redirect(url_for('trainer_dashboard'))
 
+    # Render the nutrition plan form
     return render_template('add_nutrition.html', user=user)
 
 @app.route('/view-goals/<user_id>',  methods=['GET'])
