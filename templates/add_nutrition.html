@@ -37,30 +37,6 @@
     </style>
 </head>
 <body>
-    <!-- Offcanvas Menu Section Begin -->
-    <div class="offcanvas-menu-overlay"></div>
-    <div class="offcanvas-menu-wrapper">
-        <div class="canvas-close">
-            <i class="fa fa-close"></i>
-        </div>
-        <div class="canvas-search search-switch">
-            <i class="fa fa-search"></i>
-        </div>
-        <nav class="canvas-menu mobile-menu">
-            <ul>
-                <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                <li><a href="{{ url_for('support') }}">Support</a></li>
-                <li><a href="#">Profile</a>
-                    <ul class="dropdown">
-                        <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
-                        <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
-                        <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </nav>
-    </div>
-    <!-- Offcanvas Menu Section End -->
 
     <!-- Header Section Begin -->
     <header class="header-section">
@@ -76,14 +52,7 @@
                 <div class="col-lg-6">
                     <nav class="nav-menu">
                         <ul>
-                            <li><a href="{{ url_for('support') }}">Support</a></li>
                             <li><a href="{{ url_for('logout') }}" class="logout-btn">Logout</a></li>
-                            <li><a href="#">Profile</a>
-                                <ul class="dropdown">
-                                    <li><a href="{{ url_for('userInfoProfile') }}">Personal Information</a></li>
-                                    <li><a href="{{ url_for('profilegoal') }}">Fitness Goals</a></li>
-                                    <li><a href="{{ url_for('profilemetrics') }}">Health Metrics</a></li>
-                                </ul>
                             </li>
                         </ul>
                     </nav>
@@ -136,26 +105,30 @@
                                     <td>Day {{ day }}</td>
                                     <td>
                                         <select name="meal_name_breakfast_{{ day }}" onchange="setMealType(this, {{ day }}, 'breakfast')" required>
-                                            <option value="Scrambled Eggs" data-type="Breakfast" data-calories="300" data-carbs="10" data-protein="20" data-fats="15" data-notes="3 scrambled eggs, 1 tbsp butter">Scrambled Eggs</option>
-                                            <option value="Pancakes" data-type="Breakfast" data-calories="250" data-carbs="35" data-protein="5" data-fats="8" data-notes="3 medium pancakes, 1 tbsp syrup">Pancakes</option>
-                                            <option value="Oatmeal" data-type="Breakfast" data-calories="200" data-carbs="30" data-protein="8" data-fats="7" data-notes="1 serving (1/2 cup dry oats) with 1/2 cup almond milk">Oatmeal</option>
+                                            <option value="Scrambled Eggs" data-calories="300">Scrambled Eggs</option>
+                                            <option value="Pancakes" data-calories="250">Pancakes</option>
+                                            <option value="Oatmeal" data-calories="200">Oatmeal</option>
                                         </select>
+                                        <input type="hidden" name="calories_breakfast_{{ day }}" id="calories_breakfast_{{ day }}">
                                     </td>
                                     <td>
                                         <select name="meal_name_lunch_{{ day }}" onchange="setMealType(this, {{ day }}, 'lunch')" required>
-                                            <option value="Grilled Chicken Salad" data-type="Lunch" data-calories="400" data-carbs="15" data-protein="30" data-fats="20" data-notes="150g grilled chicken, mixed greens, 2 tbsp dressing">Grilled Chicken Salad</option>
-                                            <option value="Spaghetti Bolognese" data-type="Lunch" data-calories="500" data-carbs="60" data-protein="25" data-fats="15" data-notes="1 cup spaghetti, 100g minced beef, 1/2 cup tomato sauce">Spaghetti Bolognese</option>
-                                            <option value="Chicken Wrap" data-type="Lunch" data-calories="350" data-carbs="35" data-protein="25" data-fats="10" data-notes="1 whole wheat wrap, 120g grilled chicken, lettuce, 1 tbsp mayo">Chicken Wrap</option>
+                                            <option value="Grilled Chicken Salad" data-calories="400">Grilled Chicken Salad</option>
+                                            <option value="Spaghetti Bolognese" data-calories="500">Spaghetti Bolognese</option>
+                                            <option value="Chicken Wrap" data-calories="350">Chicken Wrap</option>
                                         </select>
+                                        <input type="hidden" name="calories_lunch_{{ day }}" id="calories_lunch_{{ day }}">
                                     </td>
                                     <td>
                                         <select name="meal_name_dinner_{{ day }}" onchange="setMealType(this, {{ day }}, 'dinner')" required>
-                                            <option value="Steak with Veggies" data-type="Dinner" data-calories="600" data-carbs="10" data-protein="40" data-fats="30" data-notes="200g steak, 1 cup roasted vegetables (broccoli, carrots)">Steak with Veggies</option>
-                                            <option value="Grilled Salmon" data-type="Dinner" data-calories="350" data-carbs="5" data-protein="35" data-fats="20" data-notes="150g grilled salmon, 1 tbsp olive oil">Grilled Salmon</option>
-                                            <option value="Vegetable Stir Fry" data-type="Dinner" data-calories="450" data-carbs="60" data-protein="20" data-fats="15" data-notes="1 cup mixed vegetables (broccoli, bell peppers, onions), 1 tbsp soy sauce">Vegetable Stir Fry</option>
+                                            <option value="Steak with Veggies" data-calories="600">Steak with Veggies</option>
+                                            <option value="Grilled Salmon" data-calories="350">Grilled Salmon</option>
+                                            <option value="Vegetable Stir Fry" data-calories="450">Vegetable Stir Fry</option>
                                         </select>
+                                        <input type="hidden" name="calories_dinner_{{ day }}" id="calories_dinner_{{ day }}">
                                     </td>
                                 </tr>
+                                
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -199,6 +172,18 @@
             document.getElementById(mealType + '_fats_' + day).value = selectedOption.getAttribute('data-fats');
             document.getElementById(mealType + '_notes_' + day).value = selectedOption.getAttribute('data-notes');
         }
+    </script>
+    <script>
+        function setMealType(selectElement, day, mealType) {
+            // Get the selected meal option
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            
+            // Extract the calories attribute
+            const calories = selectedOption.getAttribute('data-calories');
+            
+            // Set the hidden input's value
+            document.getElementById(`calories_${mealType}_${day}`).value = calories;
+        }        
     </script>
 </body>
 </html>
